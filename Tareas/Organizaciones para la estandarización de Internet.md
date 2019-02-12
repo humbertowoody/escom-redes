@@ -4,10 +4,14 @@ El internet cuenta con múltiples organizaciones y organismos que regulan y esta
 
 ## ICANN
 
-ICANN es la 
+ICANN es la **Internet Corporation for Assigned Names and Numbers**, una organización sin fines de lucro, 
 
 ## IANA
+
+La **Internet Assigned Numbers Authority**, mejor conocida como *IANA*, 
 
 ## Registros Regionales de Internet
 
 ## ISP
+
+# Conclusión
