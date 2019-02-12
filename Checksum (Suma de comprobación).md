@@ -2,6 +2,8 @@
 
 Este algoritmo se implementa en la mayoría de los protocolos de comunicación dada la facilidad de la implementación. Es de las que casi siempre vamos a encontrar porque es sencillo de implementar a nivel hardware. Aplica para capa 3+.
 
+Este algoritmo es muy bueno porque permite detectar cuando hay un error pero **no** corrige el error.
+
 Procedimiento:
 
 1. Ordenar los datos en palabras de 16 bits (2 bytes).
