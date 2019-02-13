@@ -129,7 +129,7 @@ int main(int argc, char const *argv[])
   pcap_freealldevs(alldevs);
 
   // Comenzar la captura.
-  pcap_loop(adhandle, 15, packet_handler, NULL);
+  pcap_loop(adhandle, 5, packet_handler, NULL);
 
   // Finalizar la captura.
   pcap_close(adhandle);
@@ -197,41 +197,67 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     }
   }
 
-  // Fin de análisis de Trama Ethernet.
-  std::cout << "--- Fin Trama Ethernet ---" << std::endl;
-
-  // Tipo de paquete en capa de Red.
-  unsigned short tipo = (pkt_data[12] * 256) + pkt_data[13];
-
-  // Imprimir resultados.
-  std::cout << "Tipo de Paquete: " << tipo << std::endl;
-
-  std::cout << "Ether Type: ";
+  // Ether Type
+  std::cout << "· Ether Type: ";
   print_hex(pkt_data[12]);
   std::cout << " ";
   print_hex(pkt_data[13]);
   std::cout << std::endl;
 
+  // Tipo de paquete en capa de Red.
+  unsigned short tipo = (pkt_data[12] * 256) + pkt_data[13];
+
+  // Imprimir resultados.
+  std::cout << "· Tipo de Paquete: " << tipo << std::endl;
+
   // Informar si es un paquete IP.
-  std::cout << "¿Es un paquete IP? " << (tipo == 2048 ? "Sí" : "No")
+  std::cout << "· ¿Es un paquete IP? " << (tipo == 2048 ? "Sí" : "No")
             << "." << std::endl;
+
+  // Fin de análisis de Trama Ethernet.
+  std::cout << "--- Fin Trama Ethernet ---" << std::endl;
 
   // Analizar IP.
   if (tipo == 2048)
   {
+    // Imprimir inicio de análisis de IP.
     std::cout << "--- Paquete IP ---" << std::endl;
-    // std::cout << std::hex << pkt_data + 14 << std::endl;
-    ip_header *ih;
-    // // Obtener la posición del paquete IP.
-    ih = (ip_header *)(pkt_data + 14); // Longitud del encabezado de IP.
-    std::cout << "Longitud: ";
-    print_hex(ih->ver_ihl & 0X0F);
-    std::cout << std::endl
-              << "Con mejor formato: ";
-    print_hex((pkt_data[14] & 0X0F) + 1);
-    int prueba = (pkt_data[14] & 0XF0);
+
+    // Versión de IP.
+    std::cout << "· Versión de IP: " << (pkt_data[14] >> 4) << std::endl;
+
+    // IHL.
+    std::cout << "· Longitud de Encabezado: " << (pkt_data[14] & 0X0F)
+              << " x 4 = " << ((pkt_data[14] & 0X0F) * 4)
+              << " bytes." << std::endl;
+
+    // Tipo de Servicio.
+    std::cout << "· Tipo de Servicio: ";
+    print_hex(pkt_data[15]);
     std::cout << std::endl;
-    std::cout << "A ver: " << prueba << std::endl;
+
+    // Tamaño Total.
+    std::cout << "· Tamaño Total: ";
+    print_hex(pkt_data[16]);
+    std::cout << " ";
+    print_hex(pkt_data[17]);
+    std::cout << std::endl;
+
+    // TTL 22
+    // Protocolo 23
+    // Checksum 24 y 25
+    // IP Orígen 26, 27, 28 y 29.
+    // IP Destino 30, 31, 32 y 33.
+    std::cout << "· IP Origen: " << pkt_data[26] << std::endl;
+
+    // std::cout << "Longitud: ";
+    // print_hex(ih->ver_ihl & 0X0F);
+    // std::cout << std::endl
+    //           << "Con mejor formato: ";
+    // print_hex((pkt_data[14] & 0X0F) + 1);
+    // int prueba = (pkt_data[14] & 0XF0) >> 4;
+    // std::cout << std::endl;
+    // std::cout << "A ver: " << prueba << std::endl;
     // // Direcciones IP origen y destino.
     // printf("%d.%d.%d.%d -> %d.%d.%d.%d\n",
     //        ih->saddr.byte1,
