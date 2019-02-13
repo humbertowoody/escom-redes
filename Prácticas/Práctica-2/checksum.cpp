@@ -46,7 +46,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
  */
 void print_hex(unsigned char byte)
 {
-  std::cout << std::setw(2) << std::setfill('0') << std::hex
+  std::cout << std::setw(2) << std::setfill('0') << std::uppercase << std::hex
             << static_cast<int>(byte)
             << std::dec << std::setw(1);
 }
@@ -206,10 +206,9 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   // Imprimir resultados.
   std::cout << "Tipo de Paquete: " << tipo << std::endl;
 
-  std::cout << "Byte 12: ";
+  std::cout << "Ether Type: ";
   print_hex(pkt_data[12]);
-  std::cout << std::endl;
-  std::cout << "Byte 13: ";
+  std::cout << " ";
   print_hex(pkt_data[13]);
   std::cout << std::endl;
 
@@ -221,20 +220,29 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   if (tipo == 2048)
   {
     std::cout << "--- Paquete IP ---" << std::endl;
+    // std::cout << std::hex << pkt_data + 14 << std::endl;
     ip_header *ih;
-    // Obtener la posición del paquete IP.
+    // // Obtener la posición del paquete IP.
     ih = (ip_header *)(pkt_data + 14); // Longitud del encabezado de IP.
-    // Direcciones IP origen y destino.
-    printf("%d.%d.%d.%d -> %d.%d.%d.%d\n",
-           ih->saddr.byte1,
-           ih->saddr.byte2,
-           ih->saddr.byte3,
-           ih->saddr.byte4,
-           ih->daddr.byte1,
-           ih->daddr.byte2,
-           ih->daddr.byte3,
-           ih->daddr.byte4);
-    // Imprimir fin del Paquete IP:
+    std::cout << "Longitud: ";
+    print_hex(ih->ver_ihl & 0X0F);
+    std::cout << std::endl
+              << "Con mejor formato: ";
+    print_hex((pkt_data[14] & 0X0F) + 1);
+    int prueba = (pkt_data[14] & 0XF0);
+    std::cout << std::endl;
+    std::cout << "A ver: " << prueba << std::endl;
+    // // Direcciones IP origen y destino.
+    // printf("%d.%d.%d.%d -> %d.%d.%d.%d\n",
+    //        ih->saddr.byte1,
+    //        ih->saddr.byte2,
+    //        ih->saddr.byte3,
+    //        ih->saddr.byte4,
+    //        ih->daddr.byte1,
+    //        ih->daddr.byte2,
+    //        ih->daddr.byte3,
+    //        ih->daddr.byte4);
+    // // Imprimir fin del Paquete IP:
     std::cout << "--- Fin de Paquete IP ---" << std::endl;
   }
   // Imprimir fin del Paquete capturado.

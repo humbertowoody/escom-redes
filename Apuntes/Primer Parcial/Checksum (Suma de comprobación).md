@@ -13,3 +13,5 @@ Procedimiento:
 
 
 Es importante primero extraer el encabezado *Ethernet* de la trama que nos den, de ahí tenemos que extraer el encabezado IP y con ese encabezado es dónde vamos a hacer la Suma de Comprobación.
+
+Conciste en que 
