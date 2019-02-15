@@ -2,54 +2,15 @@
 #include <iomanip>
 #include <pcap.h>
 
-/* 4 bytes IP address */
-typedef struct ip_address
-{
-  u_char byte1;
-  u_char byte2;
-  u_char byte3;
-  u_char byte4;
-} ip_address;
-
-/* IPv4 header */
-typedef struct ip_header
-{
-  u_char ver_ihl;         // Version (4 bits) + Internet header length (4 bits)
-  u_char tos;             // Type of service
-  u_short tlen;           // Total length
-  u_short identification; // Identification
-  u_short flags_fo;       // Flags (3 bits) + Fragment offset (13 bits)
-  u_char ttl;             // Time to live
-  u_char proto;           // Protocol
-  u_short crc;            // Header checksum
-  ip_address saddr;       // Source address
-  ip_address daddr;       // Destination address
-  u_int op_pad;           // Option + Padding
-} ip_header;
-
-/* UDP header*/
-typedef struct udp_header
-{
-  u_short sport; // Source port
-  u_short dport; // Destination port
-  u_short len;   // Datagram length
-  u_short crc;   // Checksum
-} udp_header;
-
 /**
  * Prototipo de función para analizar paquetes.
  */
 void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, const unsigned char *pkt_data);
 
 /**
- * Función para imprimir números decimales adecuadamente.
+ * Prototipo de función para imprimir números hexadecimales adecuadamente.
  */
-void print_hex(unsigned char byte)
-{
-  std::cout << std::setw(2) << std::setfill('0') << std::uppercase << std::hex
-            << static_cast<int>(byte)
-            << std::dec << std::setw(1);
-}
+void print_hex(unsigned char byte);
 
 /**
  * Función principal.
@@ -129,7 +90,7 @@ int main(int argc, char const *argv[])
   pcap_freealldevs(alldevs);
 
   // Comenzar la captura.
-  pcap_loop(adhandle, 5, packet_handler, NULL);
+  pcap_loop(adhandle, 15, packet_handler, NULL);
 
   // Finalizar la captura.
   pcap_close(adhandle);
@@ -139,6 +100,16 @@ int main(int argc, char const *argv[])
             << std::endl;
   std::cout << "Humberto Alcocer 2019" << std::endl;
   return 0;
+}
+
+/**
+ * Función para imprimir números decimales adecuadamente.
+ */
+void print_hex(unsigned char byte)
+{
+  std::cout << std::setw(2) << std::setfill('0') << std::uppercase << std::hex
+            << static_cast<int>(byte)
+            << std::dec << std::setw(1);
 }
 
 /**
@@ -200,7 +171,6 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   // Ether Type
   std::cout << "· Ether Type: ";
   print_hex(pkt_data[12]);
-  std::cout << " ";
   print_hex(pkt_data[13]);
   std::cout << std::endl;
 
@@ -237,39 +207,144 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     std::cout << std::endl;
 
     // Tamaño Total.
-    std::cout << "· Tamaño Total: ";
-    print_hex(pkt_data[16]);
-    std::cout << " ";
-    print_hex(pkt_data[17]);
-    std::cout << std::endl;
+    std::cout << "· Tamaño Total: " << ((pkt_data[16] * 256) + pkt_data[17]) << std::endl;
+
+    // Tamaño de Datos.
+    std::cout << "· Tamaño de Datos: "
+              << (((pkt_data[16] * 256) + pkt_data[17]) - ((pkt_data[14] & 0X0F) * 4))
+              << " bytes" << std::endl;
 
     // TTL 22
-    // Protocolo 23
-    // Checksum 24 y 25
-    // IP Orígen 26, 27, 28 y 29.
-    // IP Destino 30, 31, 32 y 33.
-    std::cout << "· IP Origen: " << pkt_data[26] << std::endl;
+    std::cout << "· Tiempo de Vida (TTL): " << static_cast<int>(pkt_data[22]) << std::endl;
 
-    // std::cout << "Longitud: ";
-    // print_hex(ih->ver_ihl & 0X0F);
-    // std::cout << std::endl
-    //           << "Con mejor formato: ";
-    // print_hex((pkt_data[14] & 0X0F) + 1);
-    // int prueba = (pkt_data[14] & 0XF0) >> 4;
-    // std::cout << std::endl;
-    // std::cout << "A ver: " << prueba << std::endl;
-    // // Direcciones IP origen y destino.
-    // printf("%d.%d.%d.%d -> %d.%d.%d.%d\n",
-    //        ih->saddr.byte1,
-    //        ih->saddr.byte2,
-    //        ih->saddr.byte3,
-    //        ih->saddr.byte4,
-    //        ih->daddr.byte1,
-    //        ih->daddr.byte2,
-    //        ih->daddr.byte3,
-    //        ih->daddr.byte4);
-    // // Imprimir fin del Paquete IP:
+    // Protocolo 23
+    int protocolo = static_cast<int>(pkt_data[23]);
+    std::cout << "· Protocolo: ";
+    print_hex(pkt_data[23]);
+    std::cout << " (";
+    switch (protocolo)
+    {
+    case 6:
+      std::cout << "TCP";
+      break;
+
+    case 17:
+      std::cout << "UDP";
+      break;
+
+    default:
+      std::cout << "No es TCP ni UDP";
+      break;
+    }
+    std::cout << ")" << std::endl;
+
+    // Checksum 24 y 25
+    std::cout << "· Checksum: ";
+    print_hex(pkt_data[24]);
+    print_hex(pkt_data[25]);
+    std::cout << std::endl;
+
+    // IP Origen 26, 27, 28 y 29.
+    std::cout << "· IP Origen: ";
+    for (int i = 26; i < 30; i++)
+    {
+      std::cout << static_cast<int>(pkt_data[i]);
+      if (i < 29)
+      {
+        std::cout << ".";
+      }
+      else
+      {
+        std::cout << std::endl;
+      }
+    }
+
+    // IP Destino.
+    std::cout << "· IP Destino: ";
+    for (int i = 30; i < 34; i++)
+    {
+      std::cout << static_cast<int>(pkt_data[i]);
+      if (i < 33)
+      {
+        std::cout << ".";
+      }
+      else
+      {
+        std::cout << std::endl;
+      }
+    }
+
+    // Imprimir fin del Paquete IP:
     std::cout << "--- Fin de Paquete IP ---" << std::endl;
+
+    // Análisis de Protocolos
+    if (protocolo == 6) // TCP
+    {
+      std::cout << "---Análisis TCP ---" << std::endl;
+      // Puerto de Origen.
+      std::cout << "· Puerto Origen: " << ((pkt_data[34] * 256) + pkt_data[35]) << std::endl;
+
+      // Puerto de Destino.
+      std::cout << "· Puerto Destino: " << ((pkt_data[36] * 256) + pkt_data[37]) << std::endl;
+
+      // Longitud de encabezado TCP.
+      std::cout << "· Longitud de Encabezado: " << static_cast<int>(pkt_data[46] & 0XF0)
+                << " bits = " << ((pkt_data[46] & 0XF0) / 8)
+                << " bytes." << std::endl;
+
+      // Banderas TCP.
+      std::cout << "· Banderas TCP:" << std::endl
+                << "  ¬ NS: " << (((pkt_data[46] >> 7) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ CWR: " << ((pkt_data[47] & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ ECE: " << (((pkt_data[47] >> 1) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ URG: " << (((pkt_data[47] >> 2) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ ACK: " << (((pkt_data[47] >> 3) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ PSH: " << (((pkt_data[47] >> 4) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ RST: " << (((pkt_data[47] >> 5) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ SYN: " << (((pkt_data[47] >> 6) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl
+                << "  ¬ FIN: " << (((pkt_data[47] >> 7) & 1) ? "Activa" : "Inactiva")
+                << "." << std::endl;
+
+      // Checksum
+      std::cout << "· Checksum de TCP: ";
+      print_hex(pkt_data[50]);
+      print_hex(pkt_data[51]);
+      std::cout << std::endl;
+
+      std::cout << "--- Fin de Análisis TCP ---" << std::endl;
+    }
+    else if (protocolo == 17) // UDP
+    {
+      std::cout << "--- Análisis UDP ---" << std::endl;
+
+      // Puerto origen.
+      std::cout << "· Puerto Origen: " << ((pkt_data[34] * 256) + pkt_data[35]) << std::endl;
+
+      // Puerto destino.
+      std::cout << "· Puerto Destino: " << ((pkt_data[36] * 256) + pkt_data[37]) << std::endl;
+
+      // Longitud.
+      std::cout << "· Longitud: " << ((pkt_data[37] * 256) + pkt_data[38]) << std::endl;
+
+      // Checksum.
+      std::cout << "· Checksum: ";
+      print_hex(pkt_data[39]);
+      print_hex(pkt_data[40]);
+
+      std::cout << "--- Fin de Análisis UDP ---" << std::endl;
+    }
+    else // Otro
+    {
+      std::cout << "· El protocolo no es TCP ni UDP" << std::endl;
+    }
   }
   // Imprimir fin del Paquete capturado.
   std::cout << "****************** FIN DE PAQUETE *******************" << std::endl
