@@ -417,13 +417,46 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       std::cout << "· Puerto Destino: " << ((pkt_data[36] * 256) + pkt_data[37]) << std::endl;
 
       // Longitud.
-      std::cout << "· Longitud: " << ((pkt_data[37] * 256) + pkt_data[38]) << std::endl;
+      std::cout << "· Longitud: " << ((pkt_data[38] * 256) + pkt_data[39]) << std::endl;
 
       // Checksum.
       std::cout << "· Checksum: ";
-      print_hex(pkt_data[39]);
       print_hex(pkt_data[40]);
+      print_hex(pkt_data[41]);
       std::cout << std::endl;
+
+      // Análisis de Checksum de UDP.
+
+      // Armado de pseudo-encabezado de UDP.
+      unsigned char pseudo_udp[ipDataSize + 12];
+      memcpy(pseudo_udp, pseudo_ip, 12);
+      memcpy(pseudo_udp + 12, &pkt_data[34], ipDataSize);
+
+      // Validación de Checksum.
+      uint16_t udp_checksum_result = ip_checksum(pseudo_udp, ipDataSize + 12);
+
+      std::cout << "· ¿Checksum UDP correcto? " << (udp_checksum_result == 0 ? "Sí" : "No") << "." << std::endl;
+
+      // En caso de ser erróneo, corregirlo.
+      if (udp_checksum_result != 0)
+      {
+        // Nuevo encabezado con Checksum en 0 (puesto que lo vamos a generar).
+        unsigned char new_pseudo_header[ipDataSize + 12];
+        unsigned char udp_packet[ipDataSize];
+
+        // Copiar el paquete UDP para limpiar el Checksum.
+        memcpy(udp_packet, &pkt_data[34], ipDataSize);
+
+        // Colocar en 0's el Checksum.
+        udp_packet[16] = udp_packet[17] = 0;
+
+        // Generar nuevo pseudo encabezado.
+        memcpy(new_pseudo_header, pseudo_ip, 12);
+        memcpy(new_pseudo_header + 12, udp_packet, ipDataSize);
+
+        // Imprimir el resultado.
+        std::cout << "· Checksum UDP Corregido: " << ip_checksum((const void *)new_pseudo_header, ipDataSize + 12) << std::endl;
+      }
 
       std::cout << "--- Fin de Análisis UDP ---" << std::endl;
     }
