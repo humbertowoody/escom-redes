@@ -13,6 +13,11 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
 void print_hex(unsigned char byte);
 
 /**
+ * Prototipo de función para calcular checksum del encabezado IP.
+ */
+uint16_t ip_checksum(const void *, size_t);
+
+/**
  * Función principal.
  */
 int main(int argc, char const *argv[])
@@ -122,7 +127,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   char timestr[16];
   time_t local_tv_sec;
 
-  // Parámetros sin utilizar.
+  // Limpiar parámetros.
   (void)(param);
   (void)(pkt_data);
 
@@ -190,6 +195,9 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   // Analizar IP.
   if (tipo == 2048)
   {
+    // Pseudo-Encabezado para TCP/UDP.
+    unsigned char pseudo_ip[12];
+
     // Imprimir inicio de análisis de IP.
     std::cout << "--- Paquete IP ---" << std::endl;
 
@@ -210,9 +218,9 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     std::cout << "· Tamaño Total: " << ((pkt_data[16] * 256) + pkt_data[17]) << std::endl;
 
     // Tamaño de Datos.
-    std::cout << "· Tamaño de Datos: "
-              << (((pkt_data[16] * 256) + pkt_data[17]) - ((pkt_data[14] & 0X0F) * 4))
-              << " bytes" << std::endl;
+    unsigned int ipDataSize = (((pkt_data[16] * 256) + pkt_data[17]) - ((pkt_data[14] & 0X0F) * 4));
+
+    std::cout << "· Tamaño de Datos: " << ipDataSize << " bytes" << std::endl;
 
     // TTL 22
     std::cout << "· Tiempo de Vida (TTL): " << static_cast<int>(pkt_data[22]) << std::endl;
@@ -243,6 +251,27 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     print_hex(pkt_data[24]);
     print_hex(pkt_data[25]);
     std::cout << std::endl;
+
+    // Análisis de Checksum para IP.
+    uint16_t ip_checksum_result = ip_checksum(&pkt_data[14], ((pkt_data[14] & 0X0F) * 4));
+
+    std::cout << "· ¿Checksum Correcto? " << (ip_checksum_result == 0 ? "Sí" : "No") << "." << std::endl;
+
+    // En caso de ser erróneo, corregirlo.
+    if (ip_checksum_result != 0)
+    {
+      // Nuevo encabezado con Checksum en 0 (puesto que lo vamos a generar).
+      unsigned char *new_header;
+
+      // Copiar el encabezado.
+      memcpy(new_header, &pkt_data[14], ((pkt_data[14] & 0X0F) * 4));
+
+      // Colocar en 0's el Checksum.
+      new_header[10] = new_header[11] = 0;
+
+      // Imprimir el resultado.
+      std::cout << "· Checksum Corregido: " << ip_checksum((const void *)new_header, ((pkt_data[14] & 0X0F) * 4));
+    }
 
     // IP Origen 26, 27, 28 y 29.
     std::cout << "· IP Origen: ";
@@ -276,6 +305,30 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
 
     // Imprimir fin del Paquete IP:
     std::cout << "--- Fin de Paquete IP ---" << std::endl;
+
+    // Armado de Pseudo-Encabezado
+
+    // IP Origen.
+    pseudo_ip[0] = pkt_data[26];
+    pseudo_ip[1] = pkt_data[27];
+    pseudo_ip[2] = pkt_data[28];
+    pseudo_ip[3] = pkt_data[29];
+
+    // IP Destino.
+    pseudo_ip[4] = pkt_data[30];
+    pseudo_ip[5] = pkt_data[31];
+    pseudo_ip[6] = pkt_data[32];
+    pseudo_ip[7] = pkt_data[33];
+
+    // Reservado.
+    pseudo_ip[8] = 0;
+
+    // Protocolo.
+    pseudo_ip[9] = pkt_data[23];
+
+    // Longitud (Encabezado + Datos).
+    pseudo_ip[10] = ipDataSize & 0XFF;
+    pseudo_ip[11] = ipDataSize >> 8;
 
     // Análisis de Protocolos
     if (protocolo == 6) // TCP
@@ -319,6 +372,38 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       print_hex(pkt_data[51]);
       std::cout << std::endl;
 
+      // Análisis de Checksum de TCP.
+
+      // Armado de pseudo-encabezado de TCP.
+      unsigned char pseudo_tcp[ipDataSize + 12];
+      memcpy(pseudo_tcp, pseudo_ip, 12);
+      memcpy(pseudo_tcp + 12, &pkt_data[34], ipDataSize);
+
+      // Validación de Checksum.
+      uint16_t tcp_checksum_result = ip_checksum(pseudo_tcp, ipDataSize + 12);
+
+      std::cout << "· ¿Checksum TCP correcto? " << (tcp_checksum_result == 0 ? "Sí" : "No") << "." << std::endl;
+
+      // En caso de ser erróneo, corregirlo.
+      if (tcp_checksum_result != 0)
+      {
+        // Nuevo encabezado con Checksum en 0 (puesto que lo vamos a generar).
+        unsigned char new_pseudo_header[ipDataSize + 12];
+        unsigned char tcp_packet[ipDataSize];
+
+        // Copiar el paquete TCP para limpiar el Checksum.
+        memcpy(tcp_packet, &pkt_data[34], ipDataSize);
+        // Colocar en 0's el Checksum.
+        tcp_packet[16] = tcp_packet[17] = 0;
+
+        // Generar nuevo pseudo encabezado.
+        memcpy(new_pseudo_header, pseudo_ip, 12);
+        memcpy(new_pseudo_header + 12, tcp_packet, ipDataSize);
+
+        // Imprimir el resultado.
+        std::cout << "· Checksum TCP Corregido: " << ip_checksum((const void *)new_pseudo_header, ipDataSize + 12) << std::endl;
+      }
+
       std::cout << "--- Fin de Análisis TCP ---" << std::endl;
     }
     else if (protocolo == 17) // UDP
@@ -338,6 +423,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       std::cout << "· Checksum: ";
       print_hex(pkt_data[39]);
       print_hex(pkt_data[40]);
+      std::cout << std::endl;
 
       std::cout << "--- Fin de Análisis UDP ---" << std::endl;
     }
@@ -349,4 +435,28 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   // Imprimir fin del Paquete capturado.
   std::cout << "****************** FIN DE PAQUETE *******************" << std::endl
             << std::endl;
+}
+
+/**
+ * Calcular el Checksum del encabezado IP.
+ */
+uint16_t ip_checksum(const void *buf, size_t hdr_len)
+{
+  unsigned long sum = 0;
+  const uint16_t *ip1;
+
+  ip1 = (const uint16_t *)buf;
+
+  while (hdr_len > 1)
+  {
+    sum += *ip1++;
+    if (sum & 0x80000000)
+      sum = (sum & 0xFFFF) + (sum >> 16);
+    hdr_len -= 2;
+  }
+
+  while (sum >> 16)
+    sum = (sum & 0xFFFF) + (sum >> 16);
+
+  return (~sum);
 }
