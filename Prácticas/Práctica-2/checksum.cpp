@@ -383,6 +383,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       uint16_t tcp_checksum_result = ip_checksum(pseudo_tcp, ipDataSize + 12);
 
       std::cout << "· ¿Checksum TCP correcto? " << (tcp_checksum_result == 0 ? "Sí" : "No") << "." << std::endl;
+      std::cout << "· Valor Checksum: " << tcp_checksum_result << std::endl;
 
       // En caso de ser erróneo, corregirlo.
       if (tcp_checksum_result != 0)
