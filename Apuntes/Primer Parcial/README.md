@@ -12,4 +12,4 @@ Estos son todos los apuntes correspondientes al primer parcial de la materia. Se
 |CRC: Verificación de Redundancia Cíclica|8/02/2019
 |Checksum|13/02/2019
 |Código de Hamming|13/02/2019
-
+|Control de Flujo|20/02/2019
