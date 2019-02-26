@@ -1,7 +1,15 @@
+/**
+ * Redes de Computadoras.
+ * Práctica 2.
+ * Humberto Alcocer, 2019.
+ */
 #include <iostream>
 #include <iomanip>
 #include <pcap.h>
 
+/**
+ * Constante para especificar el número máximo de paquetes que pueden ser capturados
+ */
 #ifndef MAX_CAPTURE_NUMBER
 #define MAX_CAPTURE_NUMBER 100
 #endif // MAX_CAPTURE_NUMBER
