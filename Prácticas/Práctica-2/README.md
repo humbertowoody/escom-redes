@@ -55,6 +55,10 @@ En la parte dónde dice _TCP Segment Length_, se refiere a la **longitud del PDU
 
 Para realizar el cálculo del checksum, lo que se hace es hacer un arreglo conteniendo el pseudo encabezado y el segmento TCP/UDP, y realizar la operación sobre el arreglo resultante. El resultado será:
 
+![Pseudo Encabezado + Paquete TCP/UDP](http://www.tcpipguide.com/free/diagrams/tcppseudocalc.png)
+
+Y el resultado de analizar dicho arreglo será:
+
 - 0 si el checksum es **correcto**.
 - Diferente a 0 si el checksum es **incorrecto**.
 
@@ -67,6 +71,8 @@ El código para la prueba se encuentra en el archivo `checksum.cpp` y se puede c
 `g++ checksum.cpp -lpcap -o Checksum.out`
 
 El programa arroja una salida con análisis de cada paquete y sus respectivos campos de Checksum.
+
+\*_Nota: Si cuenta con Visual Studio Code (VSCode), se incluye una carpeta con las tareas de compilación por lo que únicamente se requiere usar el comando de compilación (`cmd + b` en Mac, `ctrl + b` en Windows/Linux) para compilar el programa._
 
 ## Posibles Mejoras
 
