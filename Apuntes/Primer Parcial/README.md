@@ -13,3 +13,4 @@ Estos son todos los apuntes correspondientes al primer parcial de la materia. Se
 |Checksum|13/02/2019
 |Código de Hamming|13/02/2019
 |Control de Flujo|20/02/2019
+|IEEE 802.3 - LLC|27/02/2019
