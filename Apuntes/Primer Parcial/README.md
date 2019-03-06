@@ -14,3 +14,6 @@ Estos son todos los apuntes correspondientes al primer parcial de la materia. Se
 |Código de Hamming|13/02/2019
 |Control de Flujo|20/02/2019
 |IEEE 802.3 - LLC|27/02/2019
+|Direccionamiento|6/03/2019
+|Multiplexación|6/03/2019
+|Control de Conexión|6/03/2019

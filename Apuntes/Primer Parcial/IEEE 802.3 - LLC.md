@@ -1,10 +1,20 @@
 # IEEE 802.3 - LLC
 
-El estándar de la IEEE
+El estándar de la IEEE 802.3 que incluye LLC, hereda del antiguo HDLC, el cual per
 
 ## Estructura de tramas
 
+La estructura del encabezado de LLC es:
 
+|MAC Destino|MAC Origen|DSAP|SSAP|LLC Control|Info|FCS|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|6 bytes|6 bytes|1 byte|1 byte|1 byte*| 43 - 1447 bytes|1 byte|
+
+_*Nota: Puede ser de 1 o de 2 bytes dependiendo de la **longitud** que se indique._
+
+### DSAP
+
+### SSAP
 
 
 ## Código de Tramas `u`
