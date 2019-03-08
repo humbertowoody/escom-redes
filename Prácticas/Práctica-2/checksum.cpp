@@ -14,6 +14,8 @@
 #define MAX_CAPTURE_NUMBER 100
 #endif // MAX_CAPTURE_NUMBER
 
+int num_paquetes = 0; // Número de paquetes capturados.
+
 /**
  * Prototipo de función para analizar paquetes.
  */
@@ -115,7 +117,7 @@ int main(int argc, char const *argv[])
   pcap_freealldevs(alldevs);
 
   // Comenzar la captura.
-  pcap_loop(adhandle, 15, packet_handler, NULL);
+  pcap_loop(adhandle, packet_number, packet_handler, NULL);
 
   // Finalizar la captura.
   pcap_close(adhandle);
@@ -160,6 +162,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   std::cout << "***************** PAQUETE CAPTURADO *****************" << std::endl;
   // Hora de Captura.
   std::cout << "Hora de Captura: " << timestr << std::endl;
+  std::cout << "Número de Paquete: " << num_paquetes << std::endl;
   // Trama Ethernet.
   std::cout << "--- Trama Ethernet ---" << std::endl;
 
@@ -548,6 +551,8 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   // Imprimir fin del Paquete capturado.
   std::cout << "****************** FIN DE PAQUETE *******************" << std::endl
             << std::endl;
+  // Aumentar el contador de paquetes.
+  num_paquetes++;
 }
 
 /**
