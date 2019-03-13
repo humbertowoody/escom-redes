@@ -1,6 +1,6 @@
 # IEEE 802.3 - LLC
 
-El estándar de la IEEE 802.3 que incluye LLC, hereda del antiguo HDLC, el cual per
+El estándar de la IEEE 802.3 que incluye LLC, hereda del antiguo HDLC, el cual permite establecer el control de flujo de los datos durante un periodo de transmisión. Su origen se remonta a HDLC, y no fue hasta el estándar de la IEEE 802.3, donde se especificó su implementación y sus posteriores mejoras únicamente han sido mediante la adición de campos de control así como delimitación de espacios de operación.
 
 ## Estructura de tramas
 
