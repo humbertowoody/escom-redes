@@ -33,8 +33,9 @@ Los medios no guiados proporcionan un soporte para que las ondas se transmitan, 
 
 |Medio|Distancia Máxima de Segmento|Ancho de Banda|Velocidad de Transmisión|
 |:--:|:--:|:--:|:--:|
-|Microondas Terrestres|
-|Satélites|
-|Ondas de Radio|
+|Microondas Terrestres|5 km|3.5 - 28 Ghz|2048 Kbps
+|Satélites|100 km|
+|Ondas de Radio|10 km|
+|WiFi|50m - 100m|2.4Ghz / 5Ghz|11Mbps / 300 Mbps
 
 [1]: http://neo.lcc.uma.es/evirtual/cdd/tutorial/fisico/Mtransm.html
