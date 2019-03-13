@@ -12,12 +12,14 @@ La estructura del encabezado de LLC es:
 
 _*Nota: Puede ser de 1 o de 2 bytes dependiendo de la **longitud** que se indique._
 
-### DSAP
+El campo de control puede ser de 8 bits o de 16 bits, dependiendo de las necesidades que se tengan para la transmisión de datos. Dichos datos contienen instrucciones.
 
-### SSAP
+El campo de control de LLC es un campo importante, dentro de este se encuentra la definición del tipo de trama que se está analizando. Dentro de los tipos, hay tramas de *Información*, *Supervisión* y *Sin Numerar*. Cada una de esas tramas se nombran por lo general `i`, `s` y `u`.
+
+Para realizar este 
 
 
-## Código de Tramas `u`
+### Código de Tramas `u`
 
 |Código|Orden|Respuesta|Explicación|
 |:---:|:---:|:---:|:---:|
@@ -34,7 +36,7 @@ _*Nota: Puede ser de 1 o de 2 bytes dependiendo de la **longitud** que se indiqu
 |10001|-|FRMR|Rechazo de tramas
 |00100|UP||Sondeo sin numerar
 
-## Códigos de Tramas `s`
+### Códigos de Tramas `s`
 
 |Código|Orden|Explicación|
 |:---:|:---:|:---:|
