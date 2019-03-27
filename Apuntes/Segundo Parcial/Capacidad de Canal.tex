@@ -1,0 +1,88 @@
+\documentclass{article}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\title{Capacidad de Canal}
+\author{Humberto Alcocer}
+\date{22 de Marzo, 2019}
+
+\begin{document}
+\maketitle
+
+\section{Introducción}
+
+La \textit{capacidad de canal} se refiere a lo que comúnmente confundimos con \textit{ancho de banda}.
+El hecho de que lo confundamos de una forma tan común es debido a que durante muchísimo tiempo el ancho de banda estaba relacionado directamente con la capacidad de canal; principalmente durante la época de uso de \textit{Token Ring} que empleaba cable de tipo Coaxial. Posteriormente se ha redefinido debido a que la frecuencia de operación del medio físico no se encuentra directamente relacionada, al menos en la actualidad, con la capacidad de canal.
+
+\section{Definición}
+
+La \textit{capacidad de canal}, es la máxima velocidad a la cual los datos pueden ser transmitidos sobre un canal de comunicaciones con cierta fidelidad. Se mide en \textit{bits por segundo} (\textit{bps}) y existen 2 criterios para medirla:
+
+\begin{itemize}
+  \item \textit{Nyquist}: $C = 2B\log_{2}(v)$ donde $v$ es el \textbf{número de señales}.
+  \item \textit{Shannon}: $C = B\log_{2}(1+\frac{s}{n})$
+\end{itemize}
+
+Cada uno de los criterios es dependiente de los datos proporcionados por los problemas en cuestión y servirán para desarrollar los ejercicios a modo.
+
+\section{Ejemplos}
+
+A continuación se describen una serie de ejmplos sobre la \textbf{capacidad de canal}, para cada uno se describen los pasos a seguir así como los despejes necesarios.
+
+\subsection{Ejemplo 1}
+
+Para operar a 9600 bps se usa un sistema de señalización digital.
+
+\begin{enumerate}
+  \item Si cada elemento de señal codifica una palabra de 4 bits, ¿Cuál es el ancho de banda mínimio necesario?
+  \begin{subequations}
+    \begin{equation}
+      9600 \si{bps} = 2B(4)
+    \end{equation}
+    \begin{equation}
+      9600 \si{bps} = 8B
+    \end{equation}
+    \begin{equation}
+      B = \frac{9600}{8} = 1200 \si{\hertz} = 1.2 \si{\kilo\hertz}
+    \end{equation}
+    \item ¿Y para palabras de 8 bits?
+    \begin{equation}
+      B = \frac{9600}{16} = 600 \si{\hertz}
+    \end{equation}
+  \end{subequations}
+\end{enumerate}
+
+\subsection{Ejemplo 2}
+
+¿Cuál es la capacidad para un canal que opera en el rango de frecuencias entre 400\si{\hertz}  y 700\si{\hertz}  con una relación $\frac{S}{N}$ de 3dB?
+
+\begin{subequations}
+  \begin{equation}
+    B = 700\si{\hertz} - 400\si{\hertz} = 300\si{\hertz}
+  \end{equation}
+  \begin{equation}
+    3dB = 10\log_{10}(\frac{S}{N})
+  \end{equation}
+  \begin{equation}
+    \frac{3}{10}=10^{\frac{3}{10}}= 1.99
+  \end{equation}
+  \begin{equation}
+    C = B \log_{2}(1+\frac{S}{N})
+  \end{equation}
+  \begin{equation}
+    C = (300)\log_{2}(1+1.99)
+  \end{equation}
+  \begin{equation}
+    C = 427.04\si{bps}
+  \end{equation}
+\end{subequations}
+
+\subsection{Ejemplo 3}
+
+Se desea construir un fax que sea capaz de transmitir una hoja tamaño carte con una resolución de 300\si{dpi} en blanco y negro empleando una línea telefónica con un ancho de banda de 4\si{\kilo\hertz} y una relación señal-ruido de 24\si{dB}.
+
+\begin{enumerate}
+  \item ¿Es posible realizar la transmisión en menos de 1 minuto? Considerando el área de la hoja $a = (8.5)(11) = 93.5 \si{pulgadas^{2}}$. Teniendo $300ppp$ ¿Cuántos puntos tengo en $1\si{pulgada^{2}}$?
+\end{enumerate}
+
+\end{document}
