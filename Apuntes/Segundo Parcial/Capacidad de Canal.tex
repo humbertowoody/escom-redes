@@ -82,7 +82,100 @@ Para operar a 9600 bps se usa un sistema de señalización digital.
 Se desea construir un fax que sea capaz de transmitir una hoja tamaño carte con una resolución de 300\si{dpi} en blanco y negro empleando una línea telefónica con un ancho de banda de 4\si{\kilo\hertz} y una relación señal-ruido de 24\si{dB}.
 
 \begin{enumerate}
-  \item ¿Es posible realizar la transmisión en menos de 1 minuto? Considerando el área de la hoja $a = (8.5)(11) = 93.5 \si{pulgadas^{2}}$. Teniendo $300ppp$ ¿Cuántos puntos tengo en $1\si{pulgada^{2}}$?
+  \begin{subequations}
+    \item ¿Es posible realizar la transmisión en menos de 1 minuto?
+
+    Considerando el área de la hoja $a = (8.5)(11) = 93.5 \si{pulgadas^{2}}$.
+
+    Teniendo $300ppp$ ¿Cuántos puntos tengo en $1\si{pulgada^{2}}$? La respuesta será calcular: $(300\si{ppp})(300\si{ppp}) = 90,000 \text{ puntos por}\si{pulgada^{2}}$.
+
+    \begin{equation}
+      \frac{90,000\text{ puntos}}{1\si{pulgada^{2}}}
+      =
+      \frac{x}{93.5\si{pulgada^{2}}}
+    \end{equation}
+    \begin{equation}
+      x = (8415000\si{puntos})(\log(2))
+    \end{equation}
+    \begin{equation}
+      x = 8415000\si{bit}
+    \end{equation}
+    \begin{equation}
+      24dB = 10\log_{10}(\frac{S}{N})
+    \end{equation}
+    \begin{equation}
+      2.4 = \log_{10}(\frac{S}{N})
+    \end{equation}
+    \begin{equation}
+      \frac{S}{N} = 10^{2.4} = 251.18
+    \end{equation}
+    \begin{equation}
+      C = (4\times10^{3})\log_{2}(1+251.18) = 31913.24\si{bps} = 31.9\si{kbps}
+    \end{equation}
+    \begin{equation}
+      \frac{31.9 \times 10^{3}\si{kbps}}{1\si{\sec}} = \frac{8415000\si{bits}}{t}
+    \end{equation}
+    \begin{equation}
+      t = 263.68\si{\sec} = 4.39\si{\min}
+    \end{equation}
+    Con el resultado de la ecuación 3i podemos decir que no es posible transmitir en menos de un minuto.
+
+    \item ¿Cuál es el tiempo mínimo para transmitir?
+
+    $4.39\si{\min}$
+
+    \item ¿Cuántas señales se necesitan para transmitir lo más rápido posible?
+    \begin{equation}
+      31.91\si{kbps}\times10^{3} = 2(4\times10^{3})\log_{2}(V)
+    \end{equation}
+    \begin{equation}
+      31.91\si{kbps}\times10^{3} = 8\times10^{3}\log_{2}(V)
+    \end{equation}
+    \begin{equation}
+      \frac{31.91\si{kbps}\times10^{3}}{8\times10^{3}} = \log_{2}(V)
+    \end{equation}
+    \begin{equation}
+      \frac{31.91\si{kbps}}{8} = \log_{2}(V)
+    \end{equation}
+    \begin{equation}
+      V = 2^{\frac{31.91}{8}} = 2^{3.99} = 15.89 \approx 16
+    \end{equation}
+    Respuesta: 16 señales, pero la respuesta correcta es 8 dada la capacidad de canal.
+
+    \item Regresando a la respuesta del inciso 2:
+    \begin{equation}
+      C = 2(4\times10^{3})\log_{2}16
+    \end{equation}
+    \begin{equation}
+      C = 8 \times 10^{3} (4)
+    \end{equation}
+    \begin{equation}
+      C = 32 \times 10^{3}\si{bps} = 32\si{kbps}
+    \end{equation}
+
+    Pero 32 kbps se pasa de los 31.9 kbps que habíamos obtenido de en el insiso 1; entonces reducimos el número de señales de 16 a 8, esto con el $\log_{2}$.
+
+    Dado el cambio en el número de señales, se tiene que recalcular el insiso 1:
+
+    \begin{equation}
+      C = 2(4\times10^{3})\log_{2}(8)
+    \end{equation}
+    \begin{equation}
+      C = 8\times10^{3}(3)
+    \end{equation}
+    \begin{equation}
+      C = 24\times10^{3}\si{bps}
+    \end{equation}
+    \begin{equation}
+      \frac{24\times10^{3}\si{bps}}{1\si{\sec}}
+      =
+      \frac{8415000\si{bits}}{t}
+    \end{equation}
+    \begin{equation}
+      t = 5.84\si{\min}
+    \end{equation}
+  \end{subequations}
+
 \end{enumerate}
 
 \end{document}
