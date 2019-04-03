@@ -8,3 +8,4 @@ Estos son todos los apuntes correspondientes al segundo parcial de la materia. S
 | Capacidad de Canal                               |       22/03/2019       |
 | Códigos de Línea                                 |       27/03/2019       |
 | Direccionamiento                                 | 27/03/2019, 29/03/2019 |
+| Subnetting (Subredes)                            |       3/04/2019        |
