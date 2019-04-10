@@ -32,4 +32,4 @@ Comenzamos con _Estudiantes_, con lo que el id de red **no deberá ser modificad
 
 **Nota**: Configuramos el _ID de Subred_ en 0 y no en 1 para una mejor organización y que las subredes nunca se lleguen a encimar.
 
-Continuando con el análisis, en _Profesores_ se nos piden 20 hosts, por lo que comenzaremos calculando el número más cercano, en binario, a 20, el cual es el 30, es decir, 5 bits. Para calcular la longitud de prefijo restamos `32-5` y tendremos un resultado de 27. Ahora, para definir la dirección inicial, tomaremos **la siguiente dirección inmediata del rango anterior**, es decir, la 192.168.0.128.
+Continuando con el análisis, en _Profesores_ se nos piden 20 hosts, por lo que comenzaremos calculando el número más cercano, en binario, a 20, el cual es el 30, es decir, 5 bits. Para calcular la longitud de prefijo restamos `32-5` y tendremos un resultado de 27. Ahora, para definir la dirección inicial, tomaremos **la siguiente dirección inmediata del rango anterior**, es decir, la 192.168.0.128 y realizaremos el análisis correspondiente. Tomando en consideración

@@ -107,4 +107,37 @@ El rango dada la notación especificada es:
 
 Como se puede ver, lo que esto nos permite es generar una longitud variable en nuestra red, de esta forma nos evitamos el problema del _Direccionamiento por Clases_ en dónde tendríamos que emplear, al menos, una máscara de clase C con 254 direcciones IP, que puede ser mucho más de lo que realmente necesitamos; o al menos no poder ser específicos como lo permite el VLSM.
 
-## CIDR
+## CIDR (Enrutamiento de Interdominio sin Clases)
+
+Para crear una *superred* (sumarizar) se necesitan 3 condiciones:
+
+- El número de bloques a ser sumarizados debe ser un múltiplo de potencia de 2.
+- Los bloques utilizados deben ser adyacentes (sin huecos entre ellos).
+- El bloque inicial que represente a la dirección de una superred será aquel cuyo tercer byte sea divisible entre el número de bloques usados. 
+
+Por ejemplo:
+
+|IP|
+|:---:|
+|200.1.12.0/24|
+|200.1.13.0/24|
+|200.1.14.0/24|
+|200.1.15.0/24|
+
+Por lo que el número es 4 (tenemos 4 subredes) y el único divisible entre 4 es el 12:
+
+||128|64|32|16|8|4|2|1|
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+|12|0|0|0|0|1|1|0|0|
+|13|0|0|0|0|1|1|0|1|
+|14|0|0|0|0|1|1|1|0|
+|15|0|0|0|0|1|1|1|1|
+
+8 + 8 + 6 = 22
+
+**Superred**: 200.1.12.0/22
+
+**Rango**: 200.1.12.0 - 200.1.15.255
+
+**Rango Útil**: 200.1.12.1 - 200.1.15.254
+
