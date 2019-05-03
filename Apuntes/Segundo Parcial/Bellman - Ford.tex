@@ -1,0 +1,35 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\title{Algoritmo de Bellman - Ford}
+\author{Humberto Alcocer}
+\date{3 de Mayo, 2019}
+
+\begin{document}
+\maketitle
+
+\section{Introducción}
+
+El algoritmo de \textit{Bellman - Ford} nos permite calcular el camino más
+corto en un grafo ponderado. Este algoritmo es menos eficiente que el algoritmo de
+\textit{Dijkstra}, sin embargo es usado dado que éste soporta pesos con valores negativos.
+
+\section{Definición de Algoritmo}
+
+\begin{itemize}
+  \item Sea $S$ = nodo origen.
+  \item Sea $dij$ = costo asociado a la trayectoria de nodos $iej$
+  \item
+    \begin{math}
+      dij= \left\{ \begin{array}{lcc}
+        0 & \textnormal{cuando} & i = j \\
+        \\ > 0 & \textnormal{cuando} & i \neq j \textnormal{ y existe un enlace directo entre } iej \\
+        \\ \infty & \textnormal{cuando} & i \neq j \textnormal{ y \textbf{no} existe un enlace directo entre } iej
+        \end{array}
+      \right.
+    \end{math}
+  \item $D_n^{(h+1)}$ = Costo en curso, obtenido por el algoritmo para la trayectoria entre los nodos $s$ y $n$.
+  \item $D_n^{(h+1)} = \min [D_j^{(h)} + djn]$
+\end{itemize}
+
+\end{document}
