@@ -13,3 +13,4 @@ Estos son todos los apuntes correspondientes al segundo parcial de la materia. S
 | Enrutamiento - Algoritmo de Dijkstra             |            12/04/2019             |
 | Enrutamiento - Algoritmo de Bellman-Ford         |             3/05/2019             |
 | Protocolo RIP                                    |             3/05/2019             |
+|IGMP|29/05/2019|
