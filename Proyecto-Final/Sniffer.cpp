@@ -9,12 +9,11 @@
 #include <string>
 #include <chrono>
 
-#define DEFAULT_FILE "./paquetes.pcap" // El nombre default del archivo a usar.
-#define MAX_CAPTURE_NUMBER 1000        // El número máximo de paquetes a capturar.
-#define MAX_PACKET_SIZE 65536          // El valor máximo de tamaño de paquete.
-#define MIN_PACKET_SIZE 100            // El valor mínimo para el tamaño de los paquetes.
-#define MAX_TIMEOUT 10000              // El valor máximo de timeout para la captura de paquetes.
-#define MIN_TIMEOUT 10                 // El valor mínimo de timeout para la captura de paquetes.
+#define MAX_CAPTURE_NUMBER 1000 // El número máximo de paquetes a capturar.
+#define MAX_PACKET_SIZE 65536   // El valor máximo de tamaño de paquete.
+#define MIN_PACKET_SIZE 100     // El valor mínimo para el tamaño de los paquetes.
+#define MAX_TIMEOUT 10000       // El valor máximo de timeout para la captura de paquetes.
+#define MIN_TIMEOUT 10          // El valor mínimo de timeout para la captura de paquetes.
 
 /**
  * cap_stats
@@ -36,6 +35,20 @@ typedef struct
 
 // Variable global con las estadísticas.
 cap_stats capture_statistics;
+
+/**
+ * configuration
+ * Estructura con la configuración para el Sniffer.
+ */
+typedef struct
+{
+  bool save_to_file;        // Guardar los paquetes a un archivo.
+  std::string out_filename; // Ruta al archivo para guardar los paquetes.
+  pcap_dumper_t *dumper;    // El dumper para ir vaciando los paquetes al archivo.
+} configuration;
+
+// Variable global de configuración.
+configuration global_configuration;
 
 /**
  * Prototipo de función que imprime las estadísticas de la sesión de captura.
@@ -74,13 +87,11 @@ int main(int argc, char const *argv[])
   int packet_size,               // Tamaño del paquete a capturar.
       timeout;                   // Timeout de los paquetes.
   bool promisc,                  // Modo promiscuo de la tarjeta de red.
-      useFile,                   // Leer paquetes de un archivo o 'al vuelo'.
-      saveToFile;                // Guardar paquetes capturados a un archivo.
+      use_file;                  // Leer paquetes de un archivo o 'al vuelo'.
   char errbuf[PCAP_ERRBUF_SIZE]; // Buffer para errores.
-  std::string inFilename,        // Lectura de paquetes desde archivo.
-      outFilename;               // Escritura de paquetes hacia un archivo.
+  std::string in_filename;       // Lectura de paquetes desde archivo.
 
-  // Título de programa.
+  // Inicio de Programa
   std::cout << "Sniffer de Paquetes" << std::endl
             << std::endl;
 
@@ -96,19 +107,19 @@ int main(int argc, char const *argv[])
   } while (temp < 1 || temp > 2);
 
   // Tipo de captura.
-  useFile = (temp == 2);
+  use_file = (temp == 2);
 
-  if (useFile)
+  if (use_file)
   {
     // Capturar el nombre del archivo.
     std::cout << "Nombre del archivo: ";
-    std::cin >> inFilename;
-    std::cout << "Se realizará la lectura desde: " << inFilename << std::endl;
+    std::cin >> in_filename;
+    std::cout << "Se realizará la lectura desde: " << in_filename << std::endl;
 
     // Abrir archivo on los paquetes a procesar.
-    if (!(adhandle = pcap_open_offline(inFilename.c_str(), errbuf)))
+    if (!(adhandle = pcap_open_offline(in_filename.c_str(), errbuf)))
     {
-      std::cerr << "Error abriendo archivo, " << inFilename << ", para letura: " << errbuf << std::endl;
+      std::cerr << "Error abriendo archivo, " << in_filename << ", para letura: " << errbuf << std::endl;
       return 2;
     }
   }
@@ -193,6 +204,28 @@ int main(int argc, char const *argv[])
       pcap_freealldevs(alldevs); // Liberar la memoria de los dispositivos.
       return -1;                 // Error.
     }
+
+    // Preguntar para guardar los paquetes capturados.
+    do
+    {
+      std::cout << "¿Deses guardar los paquetes capturados? S/N: ";
+      std::cin >> option;
+    } while (option != 's' && option != 'S' && option != 'n' && option != 'N');
+
+    global_configuration.save_to_file = (option == 'S' || option == 's');
+
+    if (global_configuration.save_to_file)
+    {
+      // Archivo para guardar paquetes.
+      std::cout << "Nombre del archivo para guardar: ";
+      std::cin.ignore();
+      std::getline(std::cin, global_configuration.out_filename);
+
+      std::cout << "Los paquetes se guardarán en " << global_configuration.out_filename << std::endl;
+
+      // Inicializar dumper.
+      global_configuration.dumper = pcap_dump_open(adhandle, global_configuration.out_filename.c_str());
+    }
   }
 
   // Preguntar al usuario el número de paquetes a capturar.
@@ -248,7 +281,7 @@ int main(int argc, char const *argv[])
   capture_statistics.total_packets = 0;
   capture_statistics.start = std::chrono::high_resolution_clock::now();
 
-  if (!useFile)
+  if (!use_file)
   {
     // Informar al usuario que se inicia la captura.
     std::cout << "Escuchando en: " << (d->description ? d->description : d->name) << std::endl;
@@ -257,17 +290,17 @@ int main(int argc, char const *argv[])
     pcap_freealldevs(alldevs);
 
     // Comenzar la captura.
-    pcap_loop(adhandle, packet_number, packet_handler, NULL);
+    pcap_loop(adhandle, packet_number, &packet_handler, NULL);
   }
   else
   {
     // Informar al usuario que se inicia el procesamiento de paquetes.
-    std::cout << "Leyendo paquetes desde " << inFilename << std::endl;
+    std::cout << "Leyendo paquetes desde " << in_filename << std::endl;
 
     // Realizar el procesamiento de paquetes.
-    if (pcap_dispatch(adhandle, 0, packet_handler, (unsigned char *)0) < 0)
+    if (pcap_dispatch(adhandle, 0, &packet_handler, (unsigned char *)0) < 0)
     {
-      std::cerr << "Error leyendo paquetes desde el archivo: " << inFilename << std::endl;
+      std::cerr << "Error leyendo paquetes desde el archivo: " << in_filename << std::endl;
       return 4;
     }
   }
@@ -277,6 +310,12 @@ int main(int argc, char const *argv[])
 
   // Configurar la hora de finalización de la captura.
   capture_statistics.end = std::chrono::high_resolution_clock::now();
+
+  // En caso de haber guardado paquetes, cerrar el archivo.
+  if (global_configuration.save_to_file)
+  {
+    pcap_dump_close(global_configuration.dumper);
+  }
 
   // Imprimir las estadísticas.
   print_stats();
@@ -323,9 +362,9 @@ void print_stats()
 void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, const unsigned char *pkt_data)
 {
   // Variables.
-  struct tm *ltime;
-  char timestr[16];
-  time_t local_tv_sec;
+  struct tm *ltime;    // Tiempo "crudo".
+  char timestr[16];    // Tiempo "leíble".
+  time_t local_tv_sec; // Variable para conversión.
 
   // Limpiar parámetros.
   (void)(param);
@@ -342,7 +381,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   std::cout << "Hora de Captura: " << timestr << std::endl;
   std::cout << "Número de Paquete: " << capture_statistics.total_packets << std::endl;
   // Trama Ethernet.
-  std::cout << "--- Trama Ethernet ---" << std::endl;
+  std::cout << "--- Trama Ethernet (u 802.3) ---" << std::endl;
 
   // MAC Destino.
   std::cout << "· MAC Destino: ";
@@ -403,7 +442,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
             << "." << std::endl;
 
   // Fin de análisis de Trama Ethernet.
-  std::cout << "--- Fin Trama Ethernet ---" << std::endl;
+  std::cout << "--- Fin Trama Ethernet (u 802.3) ---" << std::endl;
 
   // Analizar IP.
   if (tipo == 2048)
@@ -967,12 +1006,22 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     capture_statistics.non_ip_packets++;
   }
 
+  // Aumentar el contador de paquetes.
+  capture_statistics.total_packets++;
+
+  // Si se activó guardar paquetes, hacerlo ahora.
+  if (global_configuration.save_to_file)
+  {
+    // Informar al usuario.
+    std::cout << "· Paquete guardado en: " << global_configuration.out_filename << std::endl;
+
+    // Dumpear paquete (escribir, pues).
+    pcap_dump((u_char *)global_configuration.dumper, header, pkt_data);
+  }
+
   // Imprimir fin del Paquete capturado.
   std::cout << "****************** FIN DE PAQUETE *******************" << std::endl
             << std::endl;
-
-  // Aumentar el contador de paquetes.
-  capture_statistics.total_packets++;
 }
 
 /**
