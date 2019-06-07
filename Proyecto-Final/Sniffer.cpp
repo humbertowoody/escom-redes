@@ -362,9 +362,10 @@ void print_stats()
 void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, const unsigned char *pkt_data)
 {
   // Variables.
-  struct tm *ltime;    // Tiempo "crudo".
-  char timestr[16];    // Tiempo "leíble".
-  time_t local_tv_sec; // Variable para conversión.
+  struct tm *ltime;          // Tiempo "crudo".
+  char timestr[16];          // Tiempo "leíble".
+  time_t local_tv_sec;       // Variable para conversión.
+  int ethernet_position = 0; // Variable para el corrimiento del arreglo en caso de que la trama sea 802.3
 
   // Limpiar parámetros.
   (void)(param);
@@ -387,7 +388,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   std::cout << "· MAC Destino: ";
   for (int j = 0; j < 6; j++)
   {
-    print_hex(pkt_data[j]);
+    print_hex(pkt_data[ethernet_position + j]);
     if (j < 5)
     {
       std::cout << ":";
@@ -402,7 +403,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   std::cout << "· MAC Origen: ";
   for (int k = 6; k < 12; k++)
   {
-    print_hex(pkt_data[k]);
+    print_hex(pkt_data[ethernet_position + k]);
     if (k < 11)
     {
       std::cout << ":";
@@ -415,12 +416,12 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
 
   // Ether Type
   std::cout << "· Ether Type: ";
-  print_hex(pkt_data[12]);
-  print_hex(pkt_data[13]);
+  print_hex(pkt_data[ethernet_position + 12]);
+  print_hex(pkt_data[ethernet_position + 13]);
   std::cout << std::endl;
 
   // Tipo de paquete en capa de Red.
-  auto tipo = (pkt_data[12] * 256) + pkt_data[13];
+  unsigned int tipo = (pkt_data[ethernet_position + 12] * 256) + pkt_data[ethernet_position + 13];
 
   // Imprimir resultados.
   std::cout << "· Tipo de Paquete: " << tipo << std::endl;
@@ -435,6 +436,203 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
   {
     std::cout << "· El paquete es 802.3 + LLC." << std::endl;
     capture_statistics.iee8023_packets++;
+
+    // TODO: Análisis de LLC + HDLC.
+    // Longitud.
+    int longitud = (pkt_data[12] * 256) + pkt_data[13];
+    std::cout << "·Longitud: ";
+    print_hex(pkt_data[12]);
+    print_hex(pkt_data[13]);
+    std::cout << " (" << longitud << ")." << std::endl;
+
+    // DSAP.
+    std::cout << "·DSAP: ";
+    print_hex(pkt_data[14]);
+    std::cout << std::endl;
+
+    // SSAP.
+    std::cout << "·SSAP: ";
+    print_hex(pkt_data[15]);
+    std::cout << std::endl;
+
+    // Análisis en modo extendido o modo simple.
+    if (longitud > 3)
+    {
+      // Modo extendido.
+      std::cout << "·Tipo de Modo: Extendido." << std::endl;
+
+      // Campo de Control
+      std::cout << "·Campo de Control: ";
+      print_hex(pkt_data[16]);
+      print_hex(pkt_data[17]);
+      std::cout << std::endl;
+      std::string control = std::bitset<8>(pkt_data[16]).to_string() + std::bitset<8>(pkt_data[17]).to_string();
+      std::cout << "  ~ Binario: " << control << std::endl;
+
+      // Análisis de tipo de trama.
+      std::cout << "·Análisis de trama:" << std::endl;
+      if (control.at(0) == '0')
+      {
+        std::cout << "  ~ Trama tipo: I" << std::endl;
+        std::cout << "  ~ N(S) = " << control.substr(1, 7) << std::endl;
+        std::cout << "  ~ Bit P/F: " << control.at(8) << std::endl;
+        std::cout << "  ~ N(R) = " << control.substr(9, 7) << std::endl;
+      }
+      else
+      {
+        if (control.at(1) == '0')
+        {
+          // Imprimir tipo de trama.
+          std::cout << "  ~ Trama tipo: S" << std::endl;
+          // Extraer código e imprimir datos.
+          std::string codigoS = control.substr(2, 2);
+          std::cout << "  ~ Código: " << codigoS << " (";
+          if (codigoS.compare("00"))
+            std::cout << "RR) [Listo para recibir]" << std::endl;
+          else if (codigoS.compare("01"))
+            std::cout << "REJ) [Rechazo]" << std::endl;
+          else if (codigoS.compare("10"))
+            std::cout << "RNR) [No listo para recibir]" << std::endl;
+          else if (codigoS.compare("11"))
+            std::cout << "SREJ) [Rechazo selectivo]" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+          // Bit P/F
+          std::cout << "  ~ Bit P/F: " << control.at(8) << std::endl;
+          // N(R)
+          std::cout << "  ~ N(R) = " << control.substr(9, 7) << std::endl;
+        }
+        else
+        {
+          // Trama tipo U.
+          std::cout << "  ~ Trama tipo: U" << std::endl;
+          // Bit P/F
+          std::cout << "  ~ Bit P/F" << control.at(4) << std::endl;
+          // Extraer código de trama U e imprimir.
+          std::string codigo = control.substr(2, 2) + control.substr(5, 3);
+          std::cout << "  ~ Código: " << codigo << " (";
+          if (codigo.compare("00001"))
+            std::cout << "SNRM)" << std::endl;
+          else if (codigo.compare("11011"))
+            std::cout << "SNRME)" << std::endl;
+          else if (codigo.compare("11000"))
+            std::cout << "SARM)" << std::endl;
+          else if (codigo.compare("11010"))
+            std::cout << "SARME)" << std::endl;
+          else if (codigo.compare("11100"))
+            std::cout << "SABM)" << std::endl;
+          else if (codigo.compare("11110"))
+            std::cout << "SABME)" << std::endl;
+          else if (codigo.compare("00000"))
+            std::cout << "UI)" << std::endl;
+          else if (codigo.compare("00110"))
+            std::cout << "Acuse sin Numerar)" << std::endl;
+          else if (codigo.compare("00010"))
+            std::cout << "DISC)" << std::endl;
+          else if (codigo.compare("11001"))
+            std::cout << "RSET)" << std::endl;
+          else if (codigo.compare("10001"))
+            std::cout << "Rechazo de Tramas)" << std::endl;
+          else if (codigo.compare("00100"))
+            std::cout << "UP)" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+        }
+      }
+
+      // Aumentar en 4 bytes el análisis del resto de la trama.
+      ethernet_position = 4;
+    }
+    else
+    {
+      // Modo normal.
+      std::cout << "·Tipo de Modo: Normal." << std::endl;
+
+      // Campo de Control.
+      std::cout << "·Campo de Control: ";
+      print_hex(pkt_data[16]);
+      std::cout << std::endl;
+      std::string control = std::bitset<8>(pkt_data[16]).to_string();
+      std::cout << "  ~ Binario: " << control << std::endl;
+
+      // Análisis.
+      std::cout << "·Análisis de tipo de trama:" << std::endl;
+      if (control.at(0) == '0')
+      {
+        // Trama tipo I.
+        std::cout << "  ~ Trama tipo: I" << std::endl;
+        // N(S)
+        std::cout << "  ~ N(S) = " << control.substr(1, 3) << std::endl;
+        // Bit P/F
+        std::cout << "  ~ Bit P/F: " << control.at(4) << std::endl;
+        // N(R)
+        std::cout << "  ~ N(R) = " << control.substr(5, 3) << std::endl;
+      }
+      else
+      {
+        if (control.at(1) == '0')
+        {
+          // Trama S.
+          std::cout << "  ~ Trama tipo: S" << std::endl;
+          // Extraer código de trama S.
+          std::string codigoS = control.substr(2, 2);
+          std::cout << "  ~ Código: " << codigoS << " (";
+          if (codigoS.compare("00"))
+            std::cout << "RR) [Listo para recibir]" << std::endl;
+          else if (codigoS.compare("01"))
+            std::cout << "REJ) [Rechazo]" << std::endl;
+          else if (codigoS.compare("10"))
+            std::cout << "RNR) [No listo para recibir]" << std::endl;
+          else if (codigoS.compare("11"))
+            std::cout << "SREJ) [Rechazo selectivo]" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+          // Imprimir bit P/F.
+          std::cout << "  ~ Bit P/F: " << control.at(4) << std::endl;
+          // Imprimir N(R).
+          std::cout << "  ~ N(R) = " << control.substr(5, 3) << std::endl;
+        }
+        else
+        {
+          // Trama tipo U.
+          std::cout << "  ~ Trama tipo: U" << std::endl;
+          // Bit P/F
+          std::cout << "  ~ Bit P/F" << control.at(4) << std::endl;
+          // Extraer código de trama U e imprimir.
+          std::string codigo = control.substr(2, 2) + control.substr(5, 3);
+          std::cout << "  ~ Código: " << codigo << " (";
+          if (codigo.compare("00001"))
+            std::cout << "SNRM)" << std::endl;
+          else if (codigo.compare("11011"))
+            std::cout << "SNRME)" << std::endl;
+          else if (codigo.compare("11000"))
+            std::cout << "SARM)" << std::endl;
+          else if (codigo.compare("11010"))
+            std::cout << "SARME)" << std::endl;
+          else if (codigo.compare("11100"))
+            std::cout << "SABM)" << std::endl;
+          else if (codigo.compare("11110"))
+            std::cout << "SABME)" << std::endl;
+          else if (codigo.compare("00000"))
+            std::cout << "UI)" << std::endl;
+          else if (codigo.compare("00110"))
+            std::cout << "Acuse sin Numerar)" << std::endl;
+          else if (codigo.compare("00010"))
+            std::cout << "DISC)" << std::endl;
+          else if (codigo.compare("11001"))
+            std::cout << "RSET)" << std::endl;
+          else if (codigo.compare("10001"))
+            std::cout << "Rechazo de Tramas)" << std::endl;
+          else if (codigo.compare("00100"))
+            std::cout << "UP)" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+        }
+      }
+
+      // Aumentar la posición de análisis en 3 bytes.
+      ethernet_position = 3;
+    }
   }
 
   // Informar si es un paquete IP.
@@ -457,33 +655,33 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     std::cout << "--- Paquete IP ---" << std::endl;
 
     // Versión de IP.
-    std::cout << "· Versión de IP: " << (pkt_data[14] >> 4) << std::endl;
+    std::cout << "· Versión de IP: " << (pkt_data[ethernet_position + 14] >> 4) << std::endl;
 
     // IHL.
-    std::cout << "· Longitud de Encabezado: " << (pkt_data[14] & 0X0F)
-              << " x 4 = " << ((pkt_data[14] & 0X0F) * 4)
+    std::cout << "· Longitud de Encabezado: " << (pkt_data[ethernet_position + 14] & 0X0F)
+              << " x 4 = " << ((pkt_data[ethernet_position + 14] & 0X0F) * 4)
               << " bytes." << std::endl;
 
     // Tipo de Servicio.
     std::cout << "· Tipo de Servicio: ";
-    print_hex(pkt_data[15]);
+    print_hex(pkt_data[ethernet_position + 15]);
     std::cout << std::endl;
 
     // Tamaño Total.
-    std::cout << "· Tamaño Total: " << ((pkt_data[16] * 256) + pkt_data[17]) << std::endl;
+    std::cout << "· Tamaño Total: " << ((pkt_data[ethernet_position + 16] * 256) + pkt_data[ethernet_position + 17]) << std::endl;
 
     // Tamaño de Datos.
-    unsigned int ipDataSize = (((pkt_data[16] * 256) + pkt_data[17]) - ((pkt_data[14] & 0X0F) * 4));
+    unsigned int ipDataSize = (((pkt_data[ethernet_position + 16] * 256) + pkt_data[ethernet_position + 17]) - ((pkt_data[ethernet_position + 14] & 0X0F) * 4));
 
     std::cout << "· Tamaño de Datos: " << ipDataSize << " bytes" << std::endl;
 
     // TTL 22
-    std::cout << "· Tiempo de Vida (TTL): " << static_cast<int>(pkt_data[22]) << std::endl;
+    std::cout << "· Tiempo de Vida (TTL): " << static_cast<int>(pkt_data[ethernet_position + 22]) << std::endl;
 
     // Protocolo 23
-    int protocolo = static_cast<int>(pkt_data[23]);
+    int protocolo = static_cast<int>(pkt_data[ethernet_position + 23]);
     std::cout << "· Protocolo: ";
-    print_hex(pkt_data[23]);
+    print_hex(pkt_data[ethernet_position + 23]);
     std::cout << " (";
     switch (protocolo)
     {
@@ -506,12 +704,12 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
 
     // Checksum 24 y 25
     std::cout << "· Checksum: ";
-    print_hex(pkt_data[24]);
-    print_hex(pkt_data[25]);
+    print_hex(pkt_data[ethernet_position + 24]);
+    print_hex(pkt_data[ethernet_position + 25]);
     std::cout << std::endl;
 
     // Análisis de Checksum para IP.
-    uint16_t ip_checksum_result = calculateChecksum(&pkt_data[14], ((pkt_data[14] & 0X0F) * 4));
+    uint16_t ip_checksum_result = calculateChecksum(&pkt_data[ethernet_position + 14], ((pkt_data[ethernet_position + 14] & 0X0F) * 4));
 
     std::cout << "· ¿Checksum Correcto? " << (ip_checksum_result == 0 ? "Sí" : "No") << "." << std::endl;
 
@@ -522,20 +720,20 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       unsigned char *new_header;
 
       // Copiar el encabezado.
-      memcpy(new_header, &pkt_data[14], ((pkt_data[14] & 0X0F) * 4));
+      memcpy(new_header, &pkt_data[ethernet_position + 14], ((pkt_data[ethernet_position + 14] & 0X0F) * 4));
 
       // Colocar en 0's el Checksum.
       new_header[10] = new_header[11] = 0;
 
       // Imprimir el resultado.
-      std::cout << "· Checksum Corregido: " << calculateChecksum(new_header, ((pkt_data[14] & 0X0F) * 4));
+      std::cout << "· Checksum Corregido: " << calculateChecksum(new_header, ((pkt_data[ethernet_position + 14] & 0X0F) * 4));
     }
 
     // IP Origen 26, 27, 28 y 29.
     std::cout << "· IP Origen: ";
     for (int i = 26; i < 30; i++)
     {
-      std::cout << static_cast<int>(pkt_data[i]);
+      std::cout << static_cast<int>(pkt_data[ethernet_position + i]);
       if (i < 29)
       {
         std::cout << ".";
@@ -550,7 +748,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     std::cout << "· IP Destino: ";
     for (int i = 30; i < 34; i++)
     {
-      std::cout << static_cast<int>(pkt_data[i]);
+      std::cout << static_cast<int>(pkt_data[ethernet_position + i]);
       if (i < 33)
       {
         std::cout << ".";
@@ -567,22 +765,22 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     // Armado de Pseudo-Encabezado
 
     // IP Origen.
-    pseudo_ip[0] = pkt_data[26];
-    pseudo_ip[1] = pkt_data[27];
-    pseudo_ip[2] = pkt_data[28];
-    pseudo_ip[3] = pkt_data[29];
+    pseudo_ip[0] = pkt_data[ethernet_position + 26];
+    pseudo_ip[1] = pkt_data[ethernet_position + 27];
+    pseudo_ip[2] = pkt_data[ethernet_position + 28];
+    pseudo_ip[3] = pkt_data[ethernet_position + 29];
 
     // IP Destino.
-    pseudo_ip[4] = pkt_data[30];
-    pseudo_ip[5] = pkt_data[31];
-    pseudo_ip[6] = pkt_data[32];
-    pseudo_ip[7] = pkt_data[33];
+    pseudo_ip[4] = pkt_data[ethernet_position + 30];
+    pseudo_ip[5] = pkt_data[ethernet_position + 31];
+    pseudo_ip[6] = pkt_data[ethernet_position + 32];
+    pseudo_ip[7] = pkt_data[ethernet_position + 33];
 
     // Reservado.
     pseudo_ip[8] = 0;
 
     // Protocolo.
-    pseudo_ip[9] = pkt_data[23];
+    pseudo_ip[9] = pkt_data[ethernet_position + 23];
 
     // Longitud (Encabezado + Datos).
     pseudo_ip[10] = ipDataSize >> 8;
@@ -597,15 +795,15 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       std::cout << "---Análisis ICMP---" << std::endl;
 
       std::cout << "· Tipo: ";
-      print_hex(pkt_data[34]);
+      print_hex(pkt_data[ethernet_position + 34]);
       std::cout << std::endl;
-      int type = static_cast<int>(pkt_data[34]);
+      int type = static_cast<int>(pkt_data[ethernet_position + 34]);
       std::cout << "· Tipo (decimal): " << type << std::endl;
 
       std::cout << "· Código: ";
-      print_hex(pkt_data[35]);
+      print_hex(pkt_data[ethernet_position + 35]);
       std::cout << std::endl;
-      int code = static_cast<int>(pkt_data[35]);
+      int code = static_cast<int>(pkt_data[ethernet_position + 35]);
       std::cout << "· Código (decimal): " << code << std::endl;
 
       // Variable para almacenar el mensaje de control.
@@ -795,8 +993,8 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
 
       std::cout
           << "· Checksum: ";
-      print_hex(pkt_data[36]);
-      print_hex(pkt_data[37]);
+      print_hex(pkt_data[ethernet_position + 36]);
+      print_hex(pkt_data[ethernet_position + 37]);
       std::cout << std::endl;
 
       std::cout << "---Fin de Análisis de ICMP---" << std::endl;
@@ -808,41 +1006,41 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
 
       std::cout << "---Análisis TCP ---" << std::endl;
       // Puerto de Origen.
-      std::cout << "· Puerto Origen: " << ((pkt_data[34] * 256) + pkt_data[35]) << std::endl;
+      std::cout << "· Puerto Origen: " << ((pkt_data[ethernet_position + 34] * 256) + pkt_data[ethernet_position + 35]) << std::endl;
 
       // Puerto de Destino.
-      std::cout << "· Puerto Destino: " << ((pkt_data[36] * 256) + pkt_data[37]) << std::endl;
+      std::cout << "· Puerto Destino: " << ((pkt_data[ethernet_position + 36] * 256) + pkt_data[ethernet_position + 37]) << std::endl;
 
       // Longitud de encabezado TCP.
-      std::cout << "· Longitud de Encabezado: " << static_cast<int>(pkt_data[46] & 0XF0)
-                << " bits = " << ((pkt_data[46] & 0XF0) / 8)
+      std::cout << "· Longitud de Encabezado: " << static_cast<int>(pkt_data[ethernet_position + 46] & 0XF0)
+                << " bits = " << ((pkt_data[ethernet_position + 46] & 0XF0) / 8)
                 << " bytes." << std::endl;
 
       // Banderas TCP.
       std::cout << "· Banderas TCP:" << std::endl
-                << "  ¬ NS: " << (((pkt_data[46] >> 7) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ NS: " << (((pkt_data[ethernet_position + 46] >> 7) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ CWR: " << ((pkt_data[47] & 1) ? "Activa" : "Inactiva")
+                << "  ¬ CWR: " << ((pkt_data[ethernet_position + 47] & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ ECE: " << (((pkt_data[47] >> 1) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ ECE: " << (((pkt_data[ethernet_position + 47] >> 1) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ URG: " << (((pkt_data[47] >> 2) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ URG: " << (((pkt_data[ethernet_position + 47] >> 2) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ ACK: " << (((pkt_data[47] >> 3) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ ACK: " << (((pkt_data[ethernet_position + 47] >> 3) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ PSH: " << (((pkt_data[47] >> 4) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ PSH: " << (((pkt_data[ethernet_position + 47] >> 4) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ RST: " << (((pkt_data[47] >> 5) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ RST: " << (((pkt_data[ethernet_position + 47] >> 5) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ SYN: " << (((pkt_data[47] >> 6) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ SYN: " << (((pkt_data[ethernet_position + 47] >> 6) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl
-                << "  ¬ FIN: " << (((pkt_data[47] >> 7) & 1) ? "Activa" : "Inactiva")
+                << "  ¬ FIN: " << (((pkt_data[ethernet_position + 47] >> 7) & 1) ? "Activa" : "Inactiva")
                 << "." << std::endl;
 
       // Checksum
       std::cout << "· Checksum de TCP: ";
-      print_hex(pkt_data[50]);
-      print_hex(pkt_data[51]);
+      print_hex(pkt_data[ethernet_position + 50]);
+      print_hex(pkt_data[ethernet_position + 51]);
       std::cout << std::endl;
 
       // Análisis de Checksum de TCP.
@@ -850,7 +1048,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       // Armado de pseudo-encabezado de TCP.
       unsigned char pseudo_tcp[ipDataSize + 12];
       memcpy(pseudo_tcp, pseudo_ip, 12);
-      memcpy(&pseudo_tcp[12], &pkt_data[34], ipDataSize);
+      memcpy(&pseudo_tcp[12], &pkt_data[ethernet_position + 34], ipDataSize);
 
       // Imprimir Pseudo Encabezado TCP.
       std::cout << "· Pseudo Encabezado TCP:" << std::endl;
@@ -918,18 +1116,18 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       std::cout << "--- Análisis UDP ---" << std::endl;
 
       // Puerto origen.
-      std::cout << "· Puerto Origen: " << ((pkt_data[34] * 256) + pkt_data[35]) << std::endl;
+      std::cout << "· Puerto Origen: " << ((pkt_data[ethernet_position + 34] * 256) + pkt_data[ethernet_position + 35]) << std::endl;
 
       // Puerto destino.
-      std::cout << "· Puerto Destino: " << ((pkt_data[36] * 256) + pkt_data[37]) << std::endl;
+      std::cout << "· Puerto Destino: " << ((pkt_data[ethernet_position + 36] * 256) + pkt_data[ethernet_position + 37]) << std::endl;
 
       // Longitud.
-      std::cout << "· Longitud: " << ((pkt_data[38] * 256) + pkt_data[39]) << std::endl;
+      std::cout << "· Longitud: " << ((pkt_data[ethernet_position + 38] * 256) + pkt_data[ethernet_position + 39]) << std::endl;
 
       // Checksum.
       std::cout << "· Checksum: ";
-      print_hex(pkt_data[40]);
-      print_hex(pkt_data[41]);
+      print_hex(pkt_data[ethernet_position + 40]);
+      print_hex(pkt_data[ethernet_position + 41]);
       std::cout << std::endl;
 
       // Análisis de Checksum de UDP.
@@ -937,7 +1135,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       // Armado de pseudo-encabezado de UDP.
       unsigned char pseudo_udp[ipDataSize + 12];
       memcpy(pseudo_udp, pseudo_ip, 12);
-      memcpy(pseudo_udp + 12, &pkt_data[34], ipDataSize);
+      memcpy(pseudo_udp + 12, &pkt_data[ethernet_position + 34], ipDataSize);
 
       // Imprimir Pseudo Encabezado TCP.
       std::cout << "· Pseudo Encabezado UDP:" << std::endl;
