@@ -1,17 +1,19 @@
 # Proyecto Final
 
 > "There was a time when people felt the internet was another world, but now people realize it's a tool we use in this world".
+>
 > - Tim Berners Lee.
 
-Como proyecto final decidí realizar la implementación de un *sniffer* de paquetes en red que permita capturar, analizar y exportar datos de forma rápida y sencilla. El programa está realizado en C/C++ usando la librería [libpcap][libpcap-lib] para las funcionalidades de análisis y exportación de los datos.
+Como proyecto final decidí realizar la implementación de un _sniffer_ de paquetes en red que permita capturar, analizar y exportar datos de forma rápida y sencilla. El programa está realizado en C/C++ usando la librería [libpcap][libpcap-lib] para las funcionalidades de análisis y exportación de los datos.
 
 ## Tabla de Contenidos
+
 - [Proyecto Final](#proyecto-final)
   - [Tabla de Contenidos](#tabla-de-contenidos)
   - [Objetivos](#objetivos)
   - [Implementación](#implementaci%C3%B3n)
   - [Prueba](#prueba)
-    - [Paquetes *al vuelo*](#paquetes-al-vuelo)
+    - [Paquetes _al vuelo_](#paquetes-al-vuelo)
     - [Paquetes desde un archivo](#paquetes-desde-un-archivo)
     - [Establecer filtros de captura.](#establecer-filtros-de-captura)
     - [Exportar captura a un archivo `.pcap`](#exportar-captura-a-un-archivo-pcap)
@@ -27,7 +29,7 @@ El presente proyecto, únicamente busca cubrir esas funcionalidades simples de f
 - Permite elegir y configurar los parámetros de la interfaz de captura.
 - Permite especificar filtros de captura.
 - Permite elegir el número de paquetes a ser capturados.
-- Permite analizar paquetes *al vuelo*, o desde un archivo.
+- Permite analizar paquetes _al vuelo_, o desde un archivo.
 - Muestra información de **cada protocolo de cada paquete capturado**.
 - Muestra estadísticas de los paquetes capturados.
 - Permite exportar la tasa de captura a un formato estándar de los programas de captura (`.pcap`).
@@ -38,7 +40,7 @@ Para desarrollar la implementación del actual programa, comenzamos con el anál
 
 Primeramente, el programa imprime un encabezado de bienvenida y posteriormente sigue el siguiente flujo:
 
-1. Preguntar al usuario si desea capturar los paquetes *al vuelo* o desde un archivo.
+1. Preguntar al usuario si desea capturar los paquetes _al vuelo_ o desde un archivo.
 2. **Al Vuelo**
    1. Mostrar una lista de las tarjetas de red disponibles.
    2. El usuario selecciona una tarjeta.
@@ -68,14 +70,14 @@ El código fuente, refleja fuertemente este flujo y es así como el programa ya 
 
 ## Prueba
 
-Para realizar la prueba correcta del programa, tendremos que considerar todos los casos de uso válidos para el mismo, para no colocar sientos de pruebas aquí, nos enfocaremos en los casos de uso cruciales para nuestro *Sniffer*:
+Para realizar la prueba correcta del programa, tendremos que considerar todos los casos de uso válidos para el mismo, para no colocar sientos de pruebas aquí, nos enfocaremos en los casos de uso cruciales para nuestro _Sniffer_:
 
-- Leer paquetes *al vuelo*.
+- Leer paquetes _al vuelo_.
 - Leer paquetes desde un archivo.
 - Establecer filtros de captura.
 - Exportar captura a un archivo `.pcap`.
 
-### Paquetes *al vuelo*
+### Paquetes _al vuelo_
 
 Para realizar la cpatura de paquetes al vuelo, seleccionamos la **primer opción** en el primer menú. Posteriormente llenaremos nuestra configuración y finalmente el programa nos entregará una salida parecida a:
 
@@ -1318,11 +1320,11 @@ ESCOM. Redes de Computadoras - 2019
 
 Con lo cual podremos corroborar que nuestro programa es capaz de análizar paquetes contenidos en un archivo con formato estándar de captura de paquetes (`.pcap`).
 
-**Nota: Los paquetes que usé para este demo son los contenidos en el archivo `paquetes.pcap`, los cuales son específicos para probar el análisis de paquetes con encabezado Ethernet de tipo 802.3 pero funciona con cualquier tipo de paquetes.*
+\*_Nota: Los paquetes que usé para este demo son los contenidos en el archivo `paquetes.pcap`, los cuales son específicos para probar el análisis de paquetes con encabezado Ethernet de tipo 802.3 pero funciona con cualquier tipo de paquetes._
 
 ### Establecer filtros de captura.
 
-Es indispensable que nuestro programa sea capaz de aplicar filtros de captura con el fin de permitirle al usuario explotar nuestro *Sniffer* de mejor manera. Para ello, podremos hacer uso de la captura desde un archivo o *al vuelo* y el filtro deberá contar con la sintáxis específica. Digamos que quisiéramos capturar **únicamente** todo el tráfico DNS, el cual es de tipo *UDP* empleando el puerto **53**, por lo que nuestro programa nos presentaría la siguiente salida:
+Es indispensable que nuestro programa sea capaz de aplicar filtros de captura con el fin de permitirle al usuario explotar nuestro _Sniffer_ de mejor manera. Para ello, podremos hacer uso de la captura desde un archivo o _al vuelo_ y el filtro deberá contar con la sintáxis específica. Digamos que quisiéramos capturar **únicamente** todo el tráfico DNS, el cual es de tipo _UDP_ empleando el puerto **53**, por lo que nuestro programa nos presentaría la siguiente salida:
 
 ```txt
 Sniffer de Paquetes
@@ -1775,7 +1777,7 @@ Comprobando así que se cumplen los requisitos para especificar y aplicar filtro
 
 Exportar nuestra captura a un archivo de formato estándar (cómo lo es `.pcap`) nos permite a nosotros, como usuarios, capturar los paquetes y poder llevarlos a un software de análisis especializado como [WireShark][wireshark-url] para poder llevar a cabo un análisis más detallado con herramientas más completas (y complejas).
 
-Para probar esta opción, seleccionaremos captura de paquetes *al vuelo* y, al llegar la opción de exportar a un archivo, seleccionaremos `S`, es decir, sí, y especificaremos el nombre del archivo para almacenar la tasa de captura. Imaginemos que queremos capturar todos los paquetes **ICMP** y exportarlos a un archivo `icmp.pcap` para después analizarlo con **WireShark**; la ejecución del programa con esos pasos en mente nos arroja:
+Para probar esta opción, seleccionaremos captura de paquetes _al vuelo_ y, al llegar la opción de exportar a un archivo, seleccionaremos `S`, es decir, sí, y especificaremos el nombre del archivo para almacenar la tasa de captura. Imaginemos que queremos capturar todos los paquetes **ICMP** y exportarlos a un archivo `icmp.pcap` para después analizarlo con **WireShark**; la ejecución del programa con esos pasos en mente nos arroja:
 
 ```txt
 Sniffer de Paquetes
@@ -2549,3 +2551,6 @@ El desarrollo de una herramienta tan simple conlleva un entendimiento general de
 Humberto Alejandro Ortega Alcocer.
 
 Hecho con ❤️ en 2019.
+
+[libpcap-lib]: https://www.tcpdump.org/pcap.html
+[wireshark-url]: https://www.wireshark.org/
