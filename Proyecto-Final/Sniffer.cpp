@@ -29,6 +29,7 @@ typedef struct
   int tcp_packets;                                      // Número de paquetes TCP procesados.
   int udp_packets;                                      // Número de paquetes UDP procesados.
   int icmp_packets;                                     // Número de paquetes ICMP procesados.
+  int unknown_packets;                                  // Número de paquetes dentro de IP cuyo protocolo no está contemplado.
   std::chrono::high_resolution_clock::time_point start; // Inicio de Captura.
   std::chrono::high_resolution_clock::time_point end;   // Fin de Captura.
 } cap_stats;
@@ -279,6 +280,7 @@ int main(int argc, char const *argv[])
   capture_statistics.tcp_packets = 0;
   capture_statistics.udp_packets = 0;
   capture_statistics.total_packets = 0;
+  capture_statistics.unknown_packets = 0;
   capture_statistics.start = std::chrono::high_resolution_clock::now();
 
   if (!use_file)
@@ -343,15 +345,16 @@ void print_stats()
   std::cout << std::endl;
   std::cout << "Estadísticas de Captura:" << std::endl
             << std::endl;
-  std::cout << "- Paquetes Ethernet:   " << capture_statistics.ethernet_packets << std::endl;
-  std::cout << "- Paquetes IEEE 802.3: " << capture_statistics.iee8023_packets << std::endl;
-  std::cout << "  · Paquetes IP:       " << capture_statistics.ip_packets << std::endl;
-  std::cout << "  · Paquetes no IP:    " << capture_statistics.non_ip_packets << std::endl;
-  std::cout << "    ~ Paquetes ICMP:   " << capture_statistics.icmp_packets << std::endl;
-  std::cout << "    ~ Paquetes TCP:    " << capture_statistics.tcp_packets << std::endl;
-  std::cout << "    ~ Paquetes UDP:    " << capture_statistics.udp_packets << std::endl;
-  std::cout << "---------------------------------" << std::endl;
-  std::cout << "- Total de Paquetes: " << capture_statistics.total_packets << std::endl;
+  std::cout << "- Paquetes Ethernet:                " << capture_statistics.ethernet_packets << std::endl;
+  std::cout << "- Paquetes IEEE 802.3:              " << capture_statistics.iee8023_packets << std::endl;
+  std::cout << "  · Paquetes IP:                    " << capture_statistics.ip_packets << std::endl;
+  std::cout << "  · Paquetes no IP:                 " << capture_statistics.non_ip_packets << std::endl;
+  std::cout << "    ~ Paquetes ICMP:                " << capture_statistics.icmp_packets << std::endl;
+  std::cout << "    ~ Paquetes TCP:                 " << capture_statistics.tcp_packets << std::endl;
+  std::cout << "    ~ Paquetes UDP:                 " << capture_statistics.udp_packets << std::endl;
+  std::cout << "    ~ Paquetes desconocidos:        " << capture_statistics.unknown_packets << std::endl;
+  std::cout << "-----------------------------------------" << std::endl;
+  std::cout << "- Total de Paquetes:                " << capture_statistics.total_packets << std::endl;
   std::cout << "- Duración de la sesión de captura: " << duration << "ms" << std::endl;
   std::cout << std::endl;
 }
@@ -1197,6 +1200,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
     else // Otro
     {
       std::cout << "· El protocolo no es ICMP, TCP ni UDP" << std::endl;
+      capture_statistics.unknown_packets++;
     }
   }
   else
