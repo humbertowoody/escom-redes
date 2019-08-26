@@ -62,4 +62,8 @@ Implementación de un analizador de protocolos con las siguientes funcionalidade
 Implementar una pila de protocolos que permita conectar, al menos, 2 segmentos de red.
 
 
+## Bibliografía
 
+- [Forouzan Behro. "Data Communications and Networking", McGraw Hill, USA](http://library.aceondo.net/ebooks/Computer_Science/Data_Communication_and_Networking_by_Behrouz.A.Forouzan_4th.edition.pdf)
+- [Stallings William. "Comunicaciones y redes de computadoras", Prentice Hall](https://richardfong.files.wordpress.com/2011/02/stallings-william-comunicaciones-y-redes-de-computadores.pdf)
+- [Stevens Richard W. "TCP/IP Ilustrated Vol. 1: The protocols", Addison-Wesley, USA.](http://www.r-5.org/files/books/computers/internals/net/Richard_Stevens-TCP-IP_Illustrated-EN.pdf)
