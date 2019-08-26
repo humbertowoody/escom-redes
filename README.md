@@ -2,14 +2,16 @@
 
 **Prof. Axel Ernesto Moreno Cervantes**
 
-correo [axel.escom@gmail.com](mailto:axel.escom@gmail.com)
+Correo Electrónico: [axel.escom@gmail.com](mailto:axel.escom@gmail.com)
 
-Horario de Atención: *Lun - Vie 13:30 - 15:00*
+Horario de Atención: *Lun - Vie 12:00 - 13:30*
 
 Horario de Curso:
 
-- Laboratorio de Redes: Martes.
-- Salón: Miércoles, Viernes.
+|Lunes|Martes|Miércoles|
+|:---:|:---:|:---:|
+|10:30 - 12:00|8:30 - 10:00|8:30 - 10:00|
+|Salón 2113|LS4 - 1105|LS4 - 1105|
 
 ## Contenido del Curso
 
