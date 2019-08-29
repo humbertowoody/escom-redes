@@ -1,6 +1,6 @@
 # Redes de Computadoras
 
-**Prof. Axel Ernesto Moreno Cervantes**
+Profesor: **Axel Ernesto Moreno Cervantes**.
 
 Correo Electrónico: [axel.escom@gmail.com](mailto:axel.escom@gmail.com)
 
