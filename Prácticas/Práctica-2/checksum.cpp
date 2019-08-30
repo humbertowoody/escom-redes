@@ -548,6 +548,7 @@ void packet_handler(unsigned char *param, const struct pcap_pkthdr *header, cons
       std::cout << "· El protocolo no es TCP ni UDP" << std::endl;
     }
   }
+
   // Imprimir fin del Paquete capturado.
   std::cout << "****************** FIN DE PAQUETE *******************" << std::endl
             << std::endl;
@@ -562,16 +563,16 @@ unsigned int calculateChecksum(const unsigned char *buf, int length)
 {
   int i = 0;
 
-  int sum = 0; //long
-  int data;    //long
+  int sum = 0;
+  int data;
 
-  // Handle all pairs
+  // Todos los pares.
   while (length > 1)
   {
 
     data = (((buf[i] << 8) & 0xFF00) | ((buf[i + 1]) & 0xFF));
     sum += data;
-    // 1's complement carry bit correction in 16-bits (detecting sign extension)
+    // Complemento de 1's con el bit de acarreo en 16-bits (detectando extensión de signo)
     if ((sum & 0xFFFF0000) > 0)
     {
       sum = sum & 0xFFFF;
@@ -582,12 +583,11 @@ unsigned int calculateChecksum(const unsigned char *buf, int length)
     length -= 2;
   }
 
-  // Handle remaining byte in odd length buffers
+  // Buffers de longitud impar.
   if (length > 0)
   {
-    // Corrected to include @Andy's edits and various comments on Stack Overflow
     sum += (buf[i] << 8 & 0xFF00);
-    // 1's complement carry bit correction in 16-bits (detecting sign extension)
+    // Complemento de 1's con el bit de acarreo en 16-bits (detectando extensión de signo)
     if ((sum & 0xFFFF0000) > 0)
     {
       sum = sum & 0xFFFF;
@@ -595,7 +595,7 @@ unsigned int calculateChecksum(const unsigned char *buf, int length)
     }
   }
 
-  // Final 1's complement value correction to 16-bits
+  // Complemento a 1 final de 16-bits.
   sum = ~sum;
   sum = sum & 0xFFFF;
   return sum;
