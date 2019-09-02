@@ -6,9 +6,9 @@ Fecha: 12/02/2019
 
 ## Tabla de Contenidos
 
-- [Práctica 2](#pr%C3%A1ctica-2)
+- [Práctica 2](#pr%c3%a1ctica-2)
   - [Tabla de Contenidos](#tabla-de-contenidos)
-  - [Introducción](#introducci%C3%B3n)
+  - [Introducción](#introducci%c3%b3n)
   - [Desarrollo](#desarrollo)
     - [IP](#ip)
     - [TCP y UDP](#tcp-y-udp)
