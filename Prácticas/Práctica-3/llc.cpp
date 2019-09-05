@@ -69,187 +69,198 @@ void print_llc(u_char *user, const struct pcap_pkthdr *hdr, const u_char *data)
   print_hex(data[13]);
   std::cout << " (" << longitud << ")." << std::endl;
 
-  // DSAP.
-  std::cout << "·DSAP: ";
-  print_hex(data[14]);
-  std::cout << std::endl;
-
-  // SSAP.
-  std::cout << "·SSAP: ";
-  print_hex(data[15]);
-  std::cout << std::endl;
-
-  // Análisis en modo extendido o modo simple.
-  if (longitud > 3)
+  if (longitud < 1500)
   {
-    // Modo extendido.
-    std::cout << "·Tipo de Modo: Extendido." << std::endl;
+    // Informar que es trama 802.3
+    std::cout << "· La trama es IEEE 802.3" << std::endl;
 
-    // Campo de Control
-    std::cout << "·Campo de Control: ";
-    print_hex(data[16]);
-    print_hex(data[17]);
+    // DSAP.
+    std::cout << "·DSAP: ";
+    print_hex(data[14]);
     std::cout << std::endl;
-    std::string control = std::bitset<8>(data[16]).to_string() + std::bitset<8>(data[17]).to_string();
-    std::cout << "  ~ Binario: " << control << std::endl;
 
-    // Análisis de tipo de trama.
-    std::cout << "·Análisis de trama:" << std::endl;
-    if (control.at(0) == '0')
+    // SSAP.
+    std::cout << "·SSAP: ";
+    print_hex(data[15]);
+    std::cout << std::endl;
+
+    // Análisis en modo extendido o modo simple.
+    if (longitud > 3)
     {
-      std::cout << "  ~ Trama tipo: I" << std::endl;
-      std::cout << "  ~ N(S) = " << control.substr(1, 7) << std::endl;
-      std::cout << "  ~ Bit P/F: " << control.at(8) << std::endl;
-      std::cout << "  ~ N(R) = " << control.substr(9, 7) << std::endl;
-    }
-    else
-    {
-      if (control.at(1) == '0')
+      // Modo extendido.
+      std::cout << "·Tipo de Modo: Extendido." << std::endl;
+
+      // Campo de Control
+      std::cout << "·Campo de Control: ";
+      print_hex(data[16]);
+      print_hex(data[17]);
+      std::cout << std::endl;
+      std::string control = std::bitset<8>(data[16]).to_string() + std::bitset<8>(data[17]).to_string();
+      std::cout << "  ~ Binario: " << control << std::endl;
+
+      // Análisis de tipo de trama.
+      std::cout << "·Análisis de trama:" << std::endl;
+      if (control.at(0) == '0')
       {
-        // Imprimir tipo de trama.
-        std::cout << "  ~ Trama tipo: S" << std::endl;
-        // Extraer código e imprimir datos.
-        std::string codigoS = control.substr(2, 2);
-        std::cout << "  ~ Código: " << codigoS << " (";
-        if (codigoS.compare("00"))
-          std::cout << "RR) [Listo para recibir]" << std::endl;
-        else if (codigoS.compare("01"))
-          std::cout << "REJ) [Rechazo]" << std::endl;
-        else if (codigoS.compare("10"))
-          std::cout << "RNR) [No listo para recibir]" << std::endl;
-        else if (codigoS.compare("11"))
-          std::cout << "SREJ) [Rechazo selectivo]" << std::endl;
-        else
-          std::cout << "Desconocido)" << std::endl;
-        // Bit P/F
-        std::cout << "  ~ Bit P/F: " << control.at(8) << std::endl;
-        // N(R)
-        std::cout << "  ~ N(R) = " << control.substr(9, 7) << std::endl;
+        std::cout << "  ~ Trama tipo: I" << std::endl;
+        std::cout << "  ~ N(S) = " << control.substr(1, 7) << std::endl;
+        std::cout << "  ~ Bit P/F: " << control.at(8) << std::endl;
+        std::cout << "  ~ N(R) = " << control.substr(9, 7) << std::endl;
       }
       else
       {
-        // Trama tipo U.
-        std::cout << "  ~ Trama tipo: U" << std::endl;
-        // Bit P/F
-        std::cout << "  ~ Bit P/F" << control.at(4) << std::endl;
-        // Extraer código de trama U e imprimir.
-        std::string codigo = control.substr(2, 2) + control.substr(5, 3);
-        std::cout << "  ~ Código: " << codigo << " (";
-        if (codigo.compare("00001"))
-          std::cout << "SNRM)" << std::endl;
-        else if (codigo.compare("11011"))
-          std::cout << "SNRME)" << std::endl;
-        else if (codigo.compare("11000"))
-          std::cout << "SARM)" << std::endl;
-        else if (codigo.compare("11010"))
-          std::cout << "SARME)" << std::endl;
-        else if (codigo.compare("11100"))
-          std::cout << "SABM)" << std::endl;
-        else if (codigo.compare("11110"))
-          std::cout << "SABME)" << std::endl;
-        else if (codigo.compare("00000"))
-          std::cout << "UI)" << std::endl;
-        else if (codigo.compare("00110"))
-          std::cout << "Acuse sin Numerar)" << std::endl;
-        else if (codigo.compare("00010"))
-          std::cout << "DISC)" << std::endl;
-        else if (codigo.compare("11001"))
-          std::cout << "RSET)" << std::endl;
-        else if (codigo.compare("10001"))
-          std::cout << "Rechazo de Tramas)" << std::endl;
-        else if (codigo.compare("00100"))
-          std::cout << "UP)" << std::endl;
+        if (control.at(1) == '0')
+        {
+          // Imprimir tipo de trama.
+          std::cout << "  ~ Trama tipo: S" << std::endl;
+          // Extraer código e imprimir datos.
+          std::string codigoS = control.substr(2, 2);
+          std::cout << "  ~ Código: " << codigoS << " (";
+          if (codigoS.compare("00"))
+            std::cout << "RR) [Listo para recibir]" << std::endl;
+          else if (codigoS.compare("01"))
+            std::cout << "REJ) [Rechazo]" << std::endl;
+          else if (codigoS.compare("10"))
+            std::cout << "RNR) [No listo para recibir]" << std::endl;
+          else if (codigoS.compare("11"))
+            std::cout << "SREJ) [Rechazo selectivo]" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+          // Bit P/F
+          std::cout << "  ~ Bit P/F: " << control.at(8) << std::endl;
+          // N(R)
+          std::cout << "  ~ N(R) = " << control.substr(9, 7) << std::endl;
+        }
         else
-          std::cout << "Desconocido)" << std::endl;
+        {
+          // Trama tipo U.
+          std::cout << "  ~ Trama tipo: U" << std::endl;
+          // Bit P/F
+          std::cout << "  ~ Bit P/F" << control.at(4) << std::endl;
+          // Extraer código de trama U e imprimir.
+          std::string codigo = control.substr(2, 2) + control.substr(5, 3);
+          std::cout << "  ~ Código: " << codigo << " (";
+          if (codigo.compare("00001"))
+            std::cout << "SNRM)" << std::endl;
+          else if (codigo.compare("11011"))
+            std::cout << "SNRME)" << std::endl;
+          else if (codigo.compare("11000"))
+            std::cout << "SARM)" << std::endl;
+          else if (codigo.compare("11010"))
+            std::cout << "SARME)" << std::endl;
+          else if (codigo.compare("11100"))
+            std::cout << "SABM)" << std::endl;
+          else if (codigo.compare("11110"))
+            std::cout << "SABME)" << std::endl;
+          else if (codigo.compare("00000"))
+            std::cout << "UI)" << std::endl;
+          else if (codigo.compare("00110"))
+            std::cout << "Acuse sin Numerar)" << std::endl;
+          else if (codigo.compare("00010"))
+            std::cout << "DISC)" << std::endl;
+          else if (codigo.compare("11001"))
+            std::cout << "RSET)" << std::endl;
+          else if (codigo.compare("10001"))
+            std::cout << "Rechazo de Tramas)" << std::endl;
+          else if (codigo.compare("00100"))
+            std::cout << "UP)" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+        }
+      }
+    }
+    else
+    {
+      // Modo normal.
+      std::cout << "·Tipo de Modo: Normal." << std::endl;
+
+      // Campo de Control.
+      std::cout << "·Campo de Control: ";
+      print_hex(data[16]);
+      std::cout << std::endl;
+      std::string control = std::bitset<8>(data[16]).to_string();
+      std::cout << "  ~ Binario: " << control << std::endl;
+
+      // Análisis.
+      std::cout << "·Análisis de tipo de trama:" << std::endl;
+      if (control.at(0) == '0')
+      {
+        // Trama tipo I.
+        std::cout << "  ~ Trama tipo: I" << std::endl;
+        // N(S)
+        std::cout << "  ~ N(S) = " << control.substr(1, 3) << std::endl;
+        // Bit P/F
+        std::cout << "  ~ Bit P/F: " << control.at(4) << std::endl;
+        // N(R)
+        std::cout << "  ~ N(R) = " << control.substr(5, 3) << std::endl;
+      }
+      else
+      {
+        if (control.at(1) == '0')
+        {
+          // Trama S.
+          std::cout << "  ~ Trama tipo: S" << std::endl;
+          // Extraer código de trama S.
+          std::string codigoS = control.substr(2, 2);
+          std::cout << "  ~ Código: " << codigoS << " (";
+          if (codigoS.compare("00"))
+            std::cout << "RR) [Listo para recibir]" << std::endl;
+          else if (codigoS.compare("01"))
+            std::cout << "REJ) [Rechazo]" << std::endl;
+          else if (codigoS.compare("10"))
+            std::cout << "RNR) [No listo para recibir]" << std::endl;
+          else if (codigoS.compare("11"))
+            std::cout << "SREJ) [Rechazo selectivo]" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+          // Imprimir bit P/F.
+          std::cout << "  ~ Bit P/F: " << control.at(4) << std::endl;
+          // Imprimir N(R).
+          std::cout << "  ~ N(R) = " << control.substr(5, 3) << std::endl;
+        }
+        else
+        {
+          // Trama tipo U.
+          std::cout << "  ~ Trama tipo: U" << std::endl;
+          // Bit P/F
+          std::cout << "  ~ Bit P/F" << control.at(4) << std::endl;
+          // Extraer código de trama U e imprimir.
+          std::string codigo = control.substr(2, 2) + control.substr(5, 3);
+          std::cout << "  ~ Código: " << codigo << " (";
+          if (codigo.compare("00001"))
+            std::cout << "SNRM)" << std::endl;
+          else if (codigo.compare("11011"))
+            std::cout << "SNRME)" << std::endl;
+          else if (codigo.compare("11000"))
+            std::cout << "SARM)" << std::endl;
+          else if (codigo.compare("11010"))
+            std::cout << "SARME)" << std::endl;
+          else if (codigo.compare("11100"))
+            std::cout << "SABM)" << std::endl;
+          else if (codigo.compare("11110"))
+            std::cout << "SABME)" << std::endl;
+          else if (codigo.compare("00000"))
+            std::cout << "UI)" << std::endl;
+          else if (codigo.compare("00110"))
+            std::cout << "Acuse sin Numerar)" << std::endl;
+          else if (codigo.compare("00010"))
+            std::cout << "DISC)" << std::endl;
+          else if (codigo.compare("11001"))
+            std::cout << "RSET)" << std::endl;
+          else if (codigo.compare("10001"))
+            std::cout << "Rechazo de Tramas)" << std::endl;
+          else if (codigo.compare("00100"))
+            std::cout << "UP)" << std::endl;
+          else
+            std::cout << "Desconocido)" << std::endl;
+        }
       }
     }
   }
   else
   {
-    // Modo normal.
-    std::cout << "·Tipo de Modo: Normal." << std::endl;
-
-    // Campo de Control.
-    std::cout << "·Campo de Control: ";
-    print_hex(data[16]);
-    std::cout << std::endl;
-    std::string control = std::bitset<8>(data[16]).to_string();
-    std::cout << "  ~ Binario: " << control << std::endl;
-
-    // Análisis.
-    std::cout << "·Análisis de tipo de trama:" << std::endl;
-    if (control.at(0) == '0')
-    {
-      // Trama tipo I.
-      std::cout << "  ~ Trama tipo: I" << std::endl;
-      // N(S)
-      std::cout << "  ~ N(S) = " << control.substr(1, 3) << std::endl;
-      // Bit P/F
-      std::cout << "  ~ Bit P/F: " << control.at(4) << std::endl;
-      // N(R)
-      std::cout << "  ~ N(R) = " << control.substr(5, 3) << std::endl;
-    }
-    else
-    {
-      if (control.at(1) == '0')
-      {
-        // Trama S.
-        std::cout << "  ~ Trama tipo: S" << std::endl;
-        // Extraer código de trama S.
-        std::string codigoS = control.substr(2, 2);
-        std::cout << "  ~ Código: " << codigoS << " (";
-        if (codigoS.compare("00"))
-          std::cout << "RR) [Listo para recibir]" << std::endl;
-        else if (codigoS.compare("01"))
-          std::cout << "REJ) [Rechazo]" << std::endl;
-        else if (codigoS.compare("10"))
-          std::cout << "RNR) [No listo para recibir]" << std::endl;
-        else if (codigoS.compare("11"))
-          std::cout << "SREJ) [Rechazo selectivo]" << std::endl;
-        else
-          std::cout << "Desconocido)" << std::endl;
-        // Imprimir bit P/F.
-        std::cout << "  ~ Bit P/F: " << control.at(4) << std::endl;
-        // Imprimir N(R).
-        std::cout << "  ~ N(R) = " << control.substr(5, 3) << std::endl;
-      }
-      else
-      {
-        // Trama tipo U.
-        std::cout << "  ~ Trama tipo: U" << std::endl;
-        // Bit P/F
-        std::cout << "  ~ Bit P/F" << control.at(4) << std::endl;
-        // Extraer código de trama U e imprimir.
-        std::string codigo = control.substr(2, 2) + control.substr(5, 3);
-        std::cout << "  ~ Código: " << codigo << " (";
-        if (codigo.compare("00001"))
-          std::cout << "SNRM)" << std::endl;
-        else if (codigo.compare("11011"))
-          std::cout << "SNRME)" << std::endl;
-        else if (codigo.compare("11000"))
-          std::cout << "SARM)" << std::endl;
-        else if (codigo.compare("11010"))
-          std::cout << "SARME)" << std::endl;
-        else if (codigo.compare("11100"))
-          std::cout << "SABM)" << std::endl;
-        else if (codigo.compare("11110"))
-          std::cout << "SABME)" << std::endl;
-        else if (codigo.compare("00000"))
-          std::cout << "UI)" << std::endl;
-        else if (codigo.compare("00110"))
-          std::cout << "Acuse sin Numerar)" << std::endl;
-        else if (codigo.compare("00010"))
-          std::cout << "DISC)" << std::endl;
-        else if (codigo.compare("11001"))
-          std::cout << "RSET)" << std::endl;
-        else if (codigo.compare("10001"))
-          std::cout << "Rechazo de Tramas)" << std::endl;
-        else if (codigo.compare("00100"))
-          std::cout << "UP)" << std::endl;
-        else
-          std::cout << "Desconocido)" << std::endl;
-      }
-    }
+    // No es trama 802.3
+    std::cout << "· Esta trama NO es IEEE 802.3." << std::endl;
   }
 
   // Imprimir fin de Análisis.

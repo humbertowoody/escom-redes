@@ -14,9 +14,9 @@ _*Nota: Puede ser de 1 o de 2 bytes dependiendo de la **longitud** que se indiqu
 
 El campo de control puede ser de 8 bits o de 16 bits, dependiendo de las necesidades que se tengan para la transmisión de datos. Dichos datos contienen instrucciones.
 
-El campo de control de LLC es un campo importante, dentro de este se encuentra la definición del tipo de trama que se está analizando. Dentro de los tipos, hay tramas de *Información*, *Supervisión* y *Sin Numerar*. Cada una de esas tramas se nombran por lo general `i`, `s` y `u`.
+El campo de control de LLC es un campo importante, dentro de este se encuentra la definición del tipo de trama que se está analizando. Dentro de los tipos, hay tramas de *Información* (Information), *Supervisión* (Supervision) y *Sin Numerar* (Unnumbered). Cada una de esas tramas se nombran: `i`, `s` y `u`.
 
-Para realizar este 
+Para realizar este análisis, es necesario que conozcamos las distintas combinaciones de bits que generan los distintos códigos. Estas combinaciones son distintos para cada tipo de tramas.
 
 
 ### Código de Tramas `u`
