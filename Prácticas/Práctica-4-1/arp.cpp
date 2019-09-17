@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   // Informar sobre fin de programa.
   std::cout << "Fin de programa" << std::endl;
   std::cout << " - Humberto Alcocer, 2019" << std::endl;
-  std::cout << "ESCOM. Redes de Computadoras, práctica 4" << std::endl;
+  std::cout << "ESCOM. Redes de Computadoras. Práctica 4" << std::endl;
 
   // Fin de programa.
   return 0;
@@ -127,6 +127,7 @@ void arp_packet_handler(unsigned char *param, const struct pcap_pkthdr *header, 
       std::cout << std::endl;
     }
   }
+
   // MAC destino en capa de red.
   std::cout << "· MAC Destino: ";
   for (int j = 0; j < 6; j++)
@@ -211,6 +212,66 @@ void arp_packet_handler(unsigned char *param, const struct pcap_pkthdr *header, 
     default:
       std::cout << "Operación desconocida" << std::endl;
       break;
+    }
+
+    // Imprimir la MAC origen de ARP.
+    std::cout << "  - MAC origen (ARP): ";
+    for (int k = 22; k <= 27; k++)
+    {
+      print_hex(pkt_data[k]);
+      if (k < 27)
+      {
+        std::cout << ":";
+      }
+      else
+      {
+        std::cout << std::endl;
+      }
+    }
+
+    // Imprimir la dirección IP de origen.
+    std::cout << "  - IP origen: ";
+    for (int i = 28; i < 32; i++)
+    {
+      std::cout << static_cast<int>(pkt_data[i]);
+      if (i < 31)
+      {
+        std::cout << ".";
+      }
+      else
+      {
+        std::cout << std::endl;
+      }
+    }
+
+    // Imprimir la dirección IP de destino.
+    std::cout << "  - IP destino: ";
+    for (int i = 32; i < 36; i++)
+    {
+      std::cout << static_cast<int>(pkt_data[i]);
+      if (i < 35)
+      {
+        std::cout << ".";
+      }
+      else
+      {
+        std::cout << std::endl;
+      }
+    }
+
+    // Imprimir la MAC destino de ARP.
+    std::cout << "  - MAC destino (ARP): ";
+    for (int k = 36; k <= 41; k++)
+    {
+      print_hex(pkt_data[k]);
+      if (k < 41)
+      {
+        std::cout << ":";
+      }
+      else
+      {
+        std::cout << std::endl;
+      }
     }
   }
 
