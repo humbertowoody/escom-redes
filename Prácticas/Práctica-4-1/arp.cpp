@@ -198,7 +198,7 @@ void arp_packet_handler(unsigned char *param, const struct pcap_pkthdr *header, 
     switch (operation)
     {
     case 1:
-      std::cout << "Solicitud ARP" << std::endl;
+      std::cout << "Solicitud ARP " << (memcmp(&pkt_data[28],&pkt_data[38],4) == 0 ? " (ARP Gratuito)": " (No ARP Gratuito)") << std::endl;
       break;
     case 2:
       std::cout << "Respuesta de ARP" << std::endl;
@@ -244,12 +244,27 @@ void arp_packet_handler(unsigned char *param, const struct pcap_pkthdr *header, 
       }
     }
 
+    // Imprimir la MAC destino de ARP.
+    std::cout << "  - MAC destino (ARP): ";
+    for (int k = 32; k <= 37; k++)
+    {
+      print_hex(pkt_data[k]);
+      if (k < 37)
+      {
+        std::cout << ":";
+      }
+      else
+      {
+        std::cout << std::endl;
+      }
+    }
+
     // Imprimir la dirección IP de destino.
     std::cout << "  - IP destino: ";
-    for (int i = 32; i < 36; i++)
+    for (int i = 38; i < 42; i++)
     {
       std::cout << static_cast<int>(pkt_data[i]);
-      if (i < 35)
+      if (i < 41)
       {
         std::cout << ".";
       }
@@ -259,20 +274,6 @@ void arp_packet_handler(unsigned char *param, const struct pcap_pkthdr *header, 
       }
     }
 
-    // Imprimir la MAC destino de ARP.
-    std::cout << "  - MAC destino (ARP): ";
-    for (int k = 36; k <= 41; k++)
-    {
-      print_hex(pkt_data[k]);
-      if (k < 41)
-      {
-        std::cout << ":";
-      }
-      else
-      {
-        std::cout << std::endl;
-      }
-    }
   }
 
   std::cout << "-------  Fin de Análisis  --------" << std::endl;
