@@ -162,7 +162,7 @@ int main(int argc, char **argv)
    */
 
   // Iniciar hilo de escucha.
-  std::thread(listen_data, std::ref(fp), id).detach();
+  std::thread(listen_data, d, id).detach();
 
   // Informar al usuario.
   print("Escuchando paquetes enviados a este dispositivo con el ID: ", id, " .\n");

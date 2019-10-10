@@ -10,7 +10,7 @@
       "args": [
         "protocol.cpp",
         "-lpcap",
-        "-std=c++11",
+        "-std=c++17",
         "-pthread",
         "-o",
         "protocol.out"
