@@ -19,10 +19,12 @@ El hecho de que lo confundamos de una forma tan común es debido a que durante m
 La \textit{capacidad de canal}, es la máxima velocidad a la cual los datos pueden ser transmitidos sobre un canal de comunicaciones con cierta fidelidad. Se mide en \textit{bits por segundo} (\textit{bps}) y existen 2 criterios para medirla:
 
 \begin{itemize}
-  \item \textit{Nyquist}: $C = 2B\log_{2}(v)$ donde $v$ es el \textbf{número de señales}.
+  \item \textit{Nyquist}: $C = 2B\log_{2}(v)$; donde $v$ es el \textbf{número de señales}.
   \item \textit{Shannon}: $C = B\log_{2}(1+\frac{s}{n})$
 \end{itemize}
 
+Ambas ecuaciones son equiparables, lo cual significa que si igualamos ambos criterios nos deberían dar el mismo resultado porque, aunque Shannon si considera
+el ruido presente en el medio físico, los resultados para cálculos y fines de ejercicios no será muy distinto.
 Cada uno de los criterios es dependiente de los datos proporcionados por los problemas en cuestión y servirán para desarrollar los ejercicios a modo.
 
 \section{Ejemplos}
@@ -79,7 +81,7 @@ Para operar a 9600 bps se usa un sistema de señalización digital.
 
 \subsection{Ejemplo 3}
 
-Se desea construir un fax que sea capaz de transmitir una hoja tamaño carte con una resolución de 300\si{dpi} en blanco y negro empleando una línea telefónica con un ancho de banda de 4\si{\kilo\hertz} y una relación señal-ruido de 24\si{dB}.
+Se desea construir un fax que sea capaz de transmitir una hoja tamaño carte con una resolución de 300\si{ppp} (puntos por pulgada) en blanco y negro empleando una línea telefónica con un ancho de banda de 4\si{\kilo\hertz} y una relación señal-ruido de 24\si{dB}.
 
 \begin{enumerate}
   \begin{subequations}
@@ -87,19 +89,28 @@ Se desea construir un fax que sea capaz de transmitir una hoja tamaño carte con
 
     Considerando el área de la hoja $a = (8.5)(11) = 93.5 \si{pulgadas^{2}}$.
 
-    Teniendo $300ppp$ ¿Cuántos puntos tengo en $1\si{pulgada^{2}}$? La respuesta será calcular: $(300\si{ppp})(300\si{ppp}) = 90,000 \text{ puntos por}\si{pulgada^{2}}$.
+    Teniendo $300ppp$ ¿Cuántos puntos tengo en $1\si{pulgada^{2}}$?
+
+    La respuesta será calcular: $(300\si{ppp})(300\si{ppp}) = 90,000 \text{ puntos por}\si{pulgada^{2}}$.
 
     \begin{equation}
       \frac{90,000\text{ puntos}}{1\si{pulgada^{2}}}
       =
       \frac{x}{93.5\si{pulgada^{2}}}
     \end{equation}
+
+    Con esto, sabemos que el número de puntos a transmitir es de 8,415,000 puntos. Pero, considerando que
+    no vamos a transmitir a color y únicamente se realizará en blanco y negro, tenemos que hacerlo en logaritmo base dos:
     \begin{equation}
       x = (8415000\si{puntos})(\log(2))
     \end{equation}
+
+    Con esto ya tenemos la cantidad de bits a transmitir:
     \begin{equation}
       x = 8415000\si{bit}
     \end{equation}
+
+    Utilizado el criterio de Shannon, ahora podemos calcular la capacidad del canal:
     \begin{equation}
       24dB = 10\log_{10}(\frac{S}{N})
     \end{equation}
@@ -112,13 +123,15 @@ Se desea construir un fax que sea capaz de transmitir una hoja tamaño carte con
     \begin{equation}
       C = (4\times10^{3})\log_{2}(1+251.18) = 31913.24\si{bps} = 31.9\si{kbps}
     \end{equation}
+
+    Teniendo la capacidad de canal, ahora podemos calcular el tiempo mínimo que nos tomaría transmitir una página:
     \begin{equation}
       \frac{31.9 \times 10^{3}\si{kbps}}{1\si{\sec}} = \frac{8415000\si{bits}}{t}
     \end{equation}
     \begin{equation}
       t = 263.68\si{\sec} = 4.39\si{\min}
     \end{equation}
-    Con el resultado de la ecuación 3i podemos decir que no es posible transmitir en menos de un minuto.
+    Con el resultado de la ecuación 3i podemos decir que \textbf{no es posible transmitir en menos de un minuto}.
 
     \item ¿Cuál es el tiempo mínimo para transmitir?
 
@@ -141,6 +154,10 @@ Se desea construir un fax que sea capaz de transmitir una hoja tamaño carte con
       V = 2^{\frac{31.91}{8}} = 2^{3.99} = 15.89 \approx 16
     \end{equation}
     Respuesta: 16 señales, pero la respuesta correcta es 8 dada la capacidad de canal.
+    Esto es a razón de que no podemos trabajar con partes de bits, y el logaritmo base dos
+    de un número arroja 3.9 como resultado si quisiéramos usar 15 señales (el otro número entero cercano 15.89)
+    por lo que buscamos un número entero menor que nos permita trabajar con bits enteros, y el
+    resultado es 8.
 
     \item Regresando a la respuesta del inciso 2:
     \begin{equation}
