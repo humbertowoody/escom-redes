@@ -143,11 +143,11 @@ El archivo `practica-7.pkt` es un archivo de Cisco Packet Tracer v7.2, el cual p
 
 ## Posibles Mejoras
 
-La conexión serial es eficiente pero podría sustituirse por una de mayor capacidad como un _par trenzado cruzado_.
+La conexión serial es eficiente pero podría sustituirse por una de mayor velocidad utilizando un *par trenzado* de modo directo. Sin embargo, la red actual está contemplada para no modificarse, por lo que una mejora sería implementar un algoritmo de ruteo dinámico (como OSPF o RIP) para así permitirle a la red adaptarse de forma dinámica a los requerimientos de cada segmento de red.
 
 ## Conclusiones
 
-Cisco Packet Tracer es una de las herramientas más avanzadas (y divertidas) para aprender los conceptos fundamentales (y otros no tanto) de redes de computadoras.
+Cisco Packet Tracer es una de las herramientas más avanzadas (y divertidas) para aprender los conceptos fundamentales (y otros no tanto) de redes de computadoras. Durante esta primera práctica, aprendimos lo elemental pero con una visión enfocada a la facilidad que nos permite Cisco Packet Tracer para desarrollar configuraciones mucho más complejas y extensas.
 
 ## Fuentes
 
