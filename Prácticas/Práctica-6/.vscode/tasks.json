@@ -7,7 +7,14 @@
       "label": "build checksum project",
       "type": "shell",
       "command": "g++",
-      "args": ["arp.cpp", "-lpcap", "-o", "arp.out"],
+      "args": [
+        "protocol.cpp",
+        "-lpcap",
+        "-std=c++17",
+        "-pthread",
+        "-o",
+        "protocol.out"
+      ],
       "group": {
         "kind": "build",
         "isDefault": true

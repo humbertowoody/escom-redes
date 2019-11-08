@@ -1,16 +1,17 @@
 # Práctica 4
 
-Humberto Alejandro Ortega Alcocer
-20166304495
-Fecha: 5/03/2019
+**Nombre:** Humberto Alejandro Ortega Alcocer
+
+**Número de Boleta:** 20166304495
+
+**Fecha:** 17/09/2019
 
 ## Tabla de Contenidos
 
-- [Práctica 4](#pr%C3%A1ctica-4)
+- [Práctica 4](#pr%c3%a1ctica-4)
   - [Tabla de Contenidos](#tabla-de-contenidos)
-  - [Introducción](#introducci%C3%B3n)
+  - [Introducción](#introducci%c3%b3n)
   - [Desarrollo](#desarrollo)
-    - [Protocolo](#protocolo)
   - [Prueba](#prueba)
   - [Posibles Mejoras](#posibles-mejoras)
   - [Conclusiones](#conclusiones)
@@ -18,34 +19,162 @@ Fecha: 5/03/2019
 
 ## Introducción
 
-El objetivo de esta práctica es implementar nuestro propio protocolo de red. Para esto, nuestro protocolo se implementará sobre *Ethernet*, por lo que en general, nuestro proceso necesitará llenar los datos pertenecientes a la dirección MAC destino y a la dirección MAC origen, el tipo lo colocaremos a un valor predefinido en clase `0X1601` y, finalmente, el campo CRC será calculado por nuestra tarjeta de red. El objetivo será enviar un archivo con nuestro protocolo por lo que, para lograr la transmisión, deberemos diseñar nuestra estructura que permita enviar el archivo.
+El protocolo ARP proporciona la funcionalidad de poder solicitar la _traducción_, por decirlo de una manera, de direcciones físicas (hardware) a direcciones lógicas (software), siendo estas direcciones MAC e IP respectivamente. El objetivo de la presente práctica, es realizar un programa que:
+
+- [x] Capture paquetes ARP
+- [x] Muestre sus datos
+- [x] Realice un análisis de sus distintos campos
 
 ## Desarrollo
 
-Lo primero que debemos tomar en consideración para realizar el desarrollo del programa, es la estructura con la que contará nuestro protocolo de comunicación, para ello, hemos definido la siguiente:
+Para comenzar con el desarrollo del programa, realizaremos la programación de las distintas operaciones de configuración para la captura, siendo estas:
 
-| Destino | Origen | Nombre de Archivo | # Secuencia |  # Ack  |   Y    |       *Datos*       |
-| :-----: | :----: | :---------------: | :---------: | :-----: | :----: | :-----------------: |
-| 1 byte  | 1 byte |      4 bytes      |   2 bytes   | 2 bytes | 1 byte | 1474 bytes (máximo) |
+1. Mostrar una lista con todas las tarjetas de red disponibles.
+2. Leer la opción de tarjeta de red a usar que seleccione el usuario.
+3. Preguntar al usuario por el número de paquetes a capturar (sean o no ARP).
+4. Inicializar la tarjeta en _modo promiscuo_, con una longitud máxima de paquete de _65535_ y con un timeout de _10000ms_, eliminando un poco de configuración por parte del usuario.
 
-Esa estructura, será el PDU de la trama *Ethernet* que enviaremos. Cuenta con los campos suficientes para realizar un manejo correcto de la transmisión así como de otros aspectos relevantes para el manejo de la conexión.
+Posteriormente, se realizará el análisis de cada paquete de **ARP**, para esto, usaremos el siguiente formato:
 
-### Protocolo
+![Encabezado de ARP][arp-header-gif]
 
-Teniendo la definición de la cabecera, ahora definiremos el modo de trabajar de nuestro protocolo. Para esto, tomaremos en consideración un modelo *Parar y Esperar*, dónde el archivo será dividido en los paquetes que sean necesarios y se enviarán de forma secuencial. En general el proceso será el siguiente:
+Con el cual, nuestro programa mostrará información referente a los campos:
 
-1. Leer un archivo.
-2. Dividirlo en `n` partes semi-iguales.
-3. Comenzar a transmitir el archivo.
-4. Esperar un *ACK* por cada *Sec* enviado.
-5. En caso de no recibir ACK, marcar error... supongo?
+- Tipo de Hardware
+- Tipo de Protocolo
+- Longitud de dirección de hardware
+- Longitud de dirección de protocolo
+- Operación
+- Dirección de hardware (MAC) de origen
+- Dirección IP de origen
+- Dirección IP de destino
+- Dirección de hardware (MAC) de destino
+
+En el desarrollo del programa, usé C++ como lenguaje principal, con patrones de C en manejo de estructuras y algunos _castings_ hechos para interpretar los datos crudos.
+
+> En caso de contar con Visual Studio Code, se podrá compilar con la configuración prestablecida para MacOS y Linux usando el atajo de teclado: `Ctrl + B` (`⌘ + B` en MacOS). Esto generará un binario `arp.out` el cual puede ser ejecutado directamente.
 
 ## Prueba
 
-\*_Nota: Si cuenta con Visual Studio Code (VSCode), se incluye una carpeta con las tareas de compilación por lo que únicamente se requiere usar el comando de compilación (`cmd + b` en Mac, `ctrl + b` en Windows/Linux) para compilar el programa._
+El código de esta práctica se encuentra dentro de la carpeta proporcionada con este material. La salida de una correcta ejecución se muestra a continuación:
+
+```txt
+Práctica 4.1
+Analizador de ARP
+Seleccione una interfaz de red de la siguiente lista:
+1) en0
+2) p2p0
+3) awdl0
+4) bridge0
+5) utun0
+6) en1
+7) lo0
+8) gif0
+9) stf0
+10) XHC20
+Ingresa el número de la interfaz de red (1-10): 1
+¿Cuántos paquetes deseas capturar? (1-100): 10
+Iniciando captura...
+Leyendo 10 desde en0
+
+------- Paquete Capturado --------
+· MAC Origen: 68:07:15:24:2D:18
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete NO es de tipo ARP.
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 74:40:BB:B8:D0:FB
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete NO es de tipo ARP.
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 0C:B3:19:53:7A:41
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete es de tipo ARP.
+  - Tipo Hardware: (1) Ethernet
+  - Tipo Proto: 2048
+  - Longitud de Hardware:
+  - Longitud de Protocolo:
+  - Operación ARP: (1) Solicitud ARP  (No ARP Gratuito)
+  - MAC origen (ARP): 0C:B3:19:53:7A:41
+  - IP origen: 10.100.68.118
+  - MAC destino (ARP): 00:00:00:00:00:00
+  - IP destino: 10.100.95.254
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 50:68:0A:54:2C:50
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete es de tipo ARP.
+  - Tipo Hardware: (1) Ethernet
+  - Tipo Proto: 2048
+  - Longitud de Hardware:
+  - Longitud de Protocolo:
+  - Operación ARP: (1) Solicitud ARP  (No ARP Gratuito)
+  - MAC origen (ARP): 50:68:0A:54:2C:50
+  - IP origen: 10.100.68.83
+  - MAC destino (ARP): 00:00:00:00:00:00
+  - IP destino: 10.100.95.254
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 74:40:BB:B8:D0:FB
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete NO es de tipo ARP.
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 74:40:BB:B8:D0:FB
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete NO es de tipo ARP.
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 74:E5:43:66:FC:C1
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete es de tipo ARP.
+  - Tipo Hardware: (1) Ethernet
+  - Tipo Proto: 2048
+  - Longitud de Hardware:
+  - Longitud de Protocolo:
+  - Operación ARP: (1) Solicitud ARP  (ARP Gratuito)
+  - MAC origen (ARP): 74:E5:43:66:FC:C1
+  - IP origen: 10.100.70.243
+  - MAC destino (ARP): 00:00:00:00:00:00
+  - IP destino: 10.100.70.243
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 20:68:9D:EB:BC:FC
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete NO es de tipo ARP.
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: D0:65:CA:24:D8:72
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete NO es de tipo ARP.
+-------  Fin de Análisis  --------
+------- Paquete Capturado --------
+· MAC Origen: 4C:32:75:97:E7:E7
+· MAC Destino: FF:FF:FF:FF:FF:FF
+- El paquete NO es de tipo ARP.
+-------  Fin de Análisis  --------
+Fin de programa
+ - Humberto Alcocer, 2019
+ESCOM. Redes de Computadoras. Práctica 4
+```
 
 ## Posibles Mejoras
 
+Podría mejorar el análisis de ARP realizando un seguimiento de todas las _solicitudes ARP_ así como las _respuestas_ de la red. De esta forma, podríamos comenzar a _"mapear"_ la topología de la red y, finalmente, obtener más información acerca de la configuración actual de la misma, así como datos y estadísticas interesantes como, pero no limitadas a:
+
+- Número de equipos conectados.
+- Direcciones asignadas.
+- _Status_ de vida de equipos previamente detectados.
+
 ## Conclusiones
 
+El protocolo **ARP** cumple una de las funciones más importantes en las redes de computadoras, su correcto funcionamiento es fundamental para que se pueda tener un correcto flujo de configuración de los equipos.
+
+Es fácil subestimar la cantidad de paquetes ARP que se utilizan en todo momento dentro de una red, es por eso que esta práctica me ha parecido, sobre todo, interesante referente a lo mucho que se emplea dicho protocolo. Ataques de tipo "ARP Poisoning" se basan en una explotación simple del diseño de ARP, y verlo funcionar directamente gracias a un _sniffer_, como este, nos permite visualizar comportamientos interesantes dentro de una red de computadoras.
+
 ## Fuentes
+
+- Material visto en clase.
+
+[arp-header-gif]: https://www.ipv6.com/wp-content/uploads/2017/06/arp1.gif
