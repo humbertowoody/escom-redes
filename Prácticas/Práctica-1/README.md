@@ -1,10 +1,24 @@
 # Práctica 1
 
-Humberto Alejandro Ortega Alcocer
+**Nombre:** Humberto Alejandro Ortega Alcocer
 
-20166304495
+**Número de Boleta:** 20166304495
 
-Fecha: 28/08/2019
+**Fecha:** 28/08/2019
+
+## Tabla de Contenidos
+
+- [Práctica 1](#pr%c3%a1ctica-1)
+  - [Tabla de Contenidos](#tabla-de-contenidos)
+  - [Introducción](#introducci%c3%b3n)
+  - [Desarrollo](#desarrollo)
+    - [Requerimiento: Homebrew](#requerimiento-homebrew)
+    - [Instalar `libpcap`](#instalar-libpcap)
+    - [Compilación de programas](#compilaci%c3%b3n-de-programas)
+  - [Prueba](#prueba)
+  - [Posibles Mejoras](#posibles-mejoras)
+  - [Conclusiones](#conclusiones)
+  - [Fuentes](#fuentes)
 
 ## Introducción
 

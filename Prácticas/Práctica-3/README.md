@@ -8,9 +8,9 @@
 
 ## Tabla de Contenidos
 
-- [Práctica 3](#pr%C3%A1ctica-3)
+- [Práctica 3](#pr%c3%a1ctica-3)
   - [Tabla de Contenidos](#tabla-de-contenidos)
-  - [Introducción](#introducci%C3%B3n)
+  - [Introducción](#introducci%c3%b3n)
   - [Desarrollo](#desarrollo)
   - [Prueba](#prueba)
   - [Posibles Mejoras](#posibles-mejoras)
@@ -40,8 +40,6 @@ El campo `longitud` tiene una especial tarea ya que especifica si la trama estar
 
 Cuando la `longitud` de la trama excede el valor (decimal) de 3, esto nos indica que la información de dicha trama se encuentra en modo **extendido**, si el valor es 3, será en modo **normal**, con las siguientes diferencias para el análisis:
 
-
-
 ## Desarrollo
 
 Se comienza leyendo un archivo de paquetes, el cual, por default será `paquetes.pcap`, el cual podrá ser modificado pasando el nombre de otro archivo a analizar desde los argumentos del programa a modo:
@@ -63,7 +61,7 @@ Una vez compilado el archivo, se podrá ejecutar de las siguientes maneras:
 - `$ ./llc.out`: El cual ejecutará el programa con el archivo de paquetes *default* y procederá a realizar el análisis de los mismos.
 - `$ ./llc.out mi-otro-archivo.pcap`: El cual ejecutará el programa analizando los paquetes contenidos dentro de `mi-otro-archivo.pcap` e imprimirá el análisis de los mismos.
 
-*Nota\*: Si cuenta con Visual Studio Code (VSCode), se incluye una carpeta con las tareas de compilación por lo que únicamente se requiere usar el comando de compilación (`⌘ + b` en Mac, `ctrl + b` en Windows/Linux) para compilar el programa.*
+*Nota\*: Si cuenta con Visual Studio Code (VSCode), se incluye una carpeta con las tareas de compilación por lo que, únicamente, se requiere usar el comando de compilación (`⌘ + b` en Mac, `ctrl + b` en Windows/Linux) para compilar el programa.*
 
 ## Posibles Mejoras
 

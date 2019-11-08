@@ -8,10 +8,16 @@
 
 ## Tabla de Contenidos
 
-- [Práctica 5 - Ruteo Estático](#pr%C3%A1ctica-5%-%Ruteo%Est%C3%A1tico)
+- [Práctica 5 - Ruteo Estático](#pr%c3%a1ctica-5---ruteo-est%c3%a1tico)
   - [Tabla de Contenidos](#tabla-de-contenidos)
-  - [Introducción](#introducci%C3%B3n)
+  - [Introducción](#introducci%c3%b3n)
   - [Desarrollo](#desarrollo)
+    - [Configuración Física](#configuraci%c3%b3n-f%c3%adsica)
+      - [Inicio](#inicio)
+      - [Configuración de Routers](#configuraci%c3%b3n-de-routers)
+        - [Instalación de la tarjeta de comunicación Serial](#instalaci%c3%b3n-de-la-tarjeta-de-comunicaci%c3%b3n-serial)
+      - [Cableado](#cableado)
+    - [Configuración Lógica](#configuraci%c3%b3n-l%c3%b3gica)
   - [Prueba](#prueba)
   - [Posibles Mejoras](#posibles-mejoras)
   - [Conclusiones](#conclusiones)
@@ -22,7 +28,7 @@
 Para realizar una introducción al software de simulación de redes *Cisco Packet Tracer*, la presente práctica pretende replicar la configuración vista en clase de una red para Estudiantes, Profesores e Invitados con ruteo estático. La arquitectura de la red deberá quedar de la siguiente forma:
 
 |   Subred    | ID con longitud de prefijo |     Máscara     |          Rango Útil           |   Broadcast   |
-| :---------: | :------------------------: | :-------------: | :---------------------------: | :-----------: | :-----------: |
+| :---------: | :------------------------: | :-------------: | :---------------------------: | :-----------: |  |
 | Estudiantes |       192.168.0.0/25       | 255.255.255.128 |  192.168.0.1 - 192.168.0.126  | 192.168.0.127 |
 | Profesores  |      192.168.0.128/27      | 255.255.255.224 | 192.168.0.129 - 192.168.0.158 | 192.168.0.159 |
 |  Invitados  |      192.168.0.160/27      | 255.255.255.224 | 192.168.0.161 - 192.168.0.190 | 192.168.0.191 |

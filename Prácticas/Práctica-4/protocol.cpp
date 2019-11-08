@@ -330,6 +330,7 @@ void listen_data(pcap_t *d, std::string id)
  */
 void incoming_packet_handler(unsigned char *param, const struct pcap_pkthdr *header, const unsigned char *pkt_data)
 {
+  // Únicamente checamos los paquetes que sean de nuestro protocolo.
   if (pkt_data[12] == 0x16 && pkt_data[13] == 0x01)
   {
     print("¡Llegó un paquete nuestro!\n");
