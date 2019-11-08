@@ -1,14 +1,16 @@
-# Práctica 4
+# Práctica 6
 
-Humberto Alejandro Ortega Alcocer
-20166304495
-Fecha: 5/03/2019
+**Nombre:** Humberto Alejandro Ortega Alcocer
+
+**Número de Boleta:** 20166304495
+
+**Fecha:** 15/10/2019
 
 ## Tabla de Contenidos
 
-- [Práctica 4](#pr%C3%A1ctica-4)
+- [Práctica 6](#pr%c3%a1ctica-6)
   - [Tabla de Contenidos](#tabla-de-contenidos)
-  - [Introducción](#introducci%C3%B3n)
+  - [Introducción](#introducci%c3%b3n)
   - [Desarrollo](#desarrollo)
     - [Protocolo](#protocolo)
   - [Prueba](#prueba)
