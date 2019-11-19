@@ -1,5 +1,6 @@
 # Apuntes
 
-Dentro de esta carpeta se encuentran todos los apuntes que tomé en clase durante el semestre, separados por parcial y con un índice en el archivo `README.md` dentro de cada carpeta que indican la fecha en la que fueron añadidos.
+Este directorio contiene todos los apuntes de la materia de Redes de Computadoras. La mayoría de los apuntes fueron escritos en markdown, sin embargo existen varios que pueden estar en `LaTex` por lo que se anexa el PDF ya renderizado del apunte así como el original en `.tex`.
 
-Los apuntes cuentan (en su mayoría), con descripciones, tablas, imágenes y referencias externas para complementar lo visto en clase.
+
+Humberto Ortega Alcocer.
