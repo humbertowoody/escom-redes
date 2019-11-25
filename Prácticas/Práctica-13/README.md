@@ -179,7 +179,7 @@ Leyendo 10 desde en0
 -------  Fin de Análisis  --------
 Fin de programa
  - Humberto Alcocer, 2019
-ESCOM. Redes de Computadoras. Práctica 12
+ESCOM. Redes de Computadoras. Práctica 13
 ```
 
 ## Posibles Mejoras

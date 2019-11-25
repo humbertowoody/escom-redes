@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   // Informar sobre fin de programa.
   std::cout << "Fin de programa" << std::endl;
   std::cout << " - Humberto Alcocer, 2019" << std::endl;
-  std::cout << "ESCOM. Redes de Computadoras. Práctica 12" << std::endl;
+  std::cout << "ESCOM. Redes de Computadoras. Práctica 13" << std::endl;
 
   // Fin de programa.
   return 0;
